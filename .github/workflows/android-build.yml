@@ -38,7 +38,9 @@ jobs:
           echo "MY_KEY_PASSWORD=$KEY_PASSWORD" >> gradle.properties
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --no-daemon
+        env:
+          JAVA_TOOL_OPTIONS: "-Xmx4g"
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4

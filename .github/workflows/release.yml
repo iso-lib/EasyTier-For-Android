@@ -46,7 +46,9 @@ jobs:
           echo "MY_KEY_PASSWORD=$KEY_PASSWORD" >> gradle.properties
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --no-daemon
+        env:
+          JAVA_TOOL_OPTIONS: "-Xmx4g"
 
       - name: Get APK path
         id: apk-path
