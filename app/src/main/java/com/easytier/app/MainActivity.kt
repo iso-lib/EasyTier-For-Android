@@ -199,7 +199,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.stopEasyTier()
+        // 不在这里停止服务，让服务在后台继续运行
+        // 服务只会在以下情况停止：
+        // 1. 用户点击"停止服务"按钮
+        // 2. 用户从任务列表划掉应用
     }
 
     /**
