@@ -47,7 +47,7 @@ class EasyTierVpnService : VpnService() {
             }
         }
 
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     private fun setupVpnInterface(ipv4Address: String, proxyCidrs: List<String>) {
@@ -138,6 +138,12 @@ class EasyTierVpnService : VpnService() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "VPN Service destroyed")
+        cleanup()
+    }
+
+    override fun onRevoke() {
+        super.onRevoke()
+        Log.d(TAG, "VPN Service revoked")
         cleanup()
     }
 }
