@@ -50,12 +50,14 @@ jobs:
         env:
           JAVA_TOOL_OPTIONS: "-Xmx4g"
 
-      - name: Get APK path
+      - name: Rename APK
         id: apk-path
         run: |
-          APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
-          echo "APK_PATH=$APK_PATH"
+          ORIGINAL_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          RENAMED_APK="app/build/outputs/apk/release/easytier-arm64-v8a.apk"
+          mv "$ORIGINAL_APK" "$RENAMED_APK"
+          echo "apk_path=$RENAMED_APK" >> $GITHUB_OUTPUT
+          echo "APK_PATH=$RENAMED_APK"
 
       - name: Create Tag
         run: |
