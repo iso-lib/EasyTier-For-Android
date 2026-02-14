@@ -14,7 +14,10 @@ on:
         default: 'New release'
 
 jobs:
-  build-and-release:
+  build-and-release:- name: Build Release APK
+    run: ./gradlew assembleRelease --no-daemon
+    env:
+      JAVA_TOOL_OPTIONS: "-Xmx4g"
     runs-on: ubuntu-latest
 
     steps:
@@ -46,9 +49,7 @@ jobs:
           echo "MY_KEY_PASSWORD=$KEY_PASSWORD" >> gradle.properties
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease --no-daemon
-        env:
-          JAVA_TOOL_OPTIONS: "-Xmx4g"
+        run: ./gradlew assembleRelease
 
       - name: Get APK path
         id: apk-path
