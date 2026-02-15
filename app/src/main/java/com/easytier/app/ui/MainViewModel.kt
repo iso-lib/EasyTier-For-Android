@@ -281,7 +281,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val configToml = generateTomlConfig(_activeConfig.value)
         Log.d(TAG, "Generated Config:\n$configToml")
 
-        val timeStamp = java.time.OffsetDateTime.now().toString()
+        val timeStamp = java.text.SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+            java.util.Locale.getDefault()
+        ).format(java.util.Date())
 
 
         val tomlLogEntry = JSONObject()
