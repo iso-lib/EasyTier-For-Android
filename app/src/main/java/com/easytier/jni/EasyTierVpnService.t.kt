@@ -10,10 +10,13 @@ class EasyTierVpnService : VpnService() {
 
     private var vpnInterface: ParcelFileDescriptor? = null
     private var isRunning = false
+    @Volatile
+    private var stopRequested = false
     private var instanceName: String? = null
 
     companion object {
         private const val TAG = "EasyTierVpnService"
+        const val ACTION_STOP = "com.easytier.jni.EasyTierVpnService.ACTION_STOP"
     }
 
     override fun onCreate() {
@@ -22,6 +25,11 @@ class EasyTierVpnService : VpnService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP) {
+            requestStop()
+            return START_NOT_STICKY
+        }
+
         // 获取传入的参数
         val ipv4Address = intent?.getStringExtra("ipv4_address")
         val proxyCidrs = intent?.getStringArrayListExtra("proxy_cidrs") ?: arrayListOf()
@@ -37,6 +45,7 @@ class EasyTierVpnService : VpnService() {
             TAG,
             "启动 VPN Service - IPv4: $ipv4Address, Proxy CIDRs: $proxyCidrs, Instance: $instanceName"
         )
+        stopRequested = false
 
         thread {
             try {
@@ -52,6 +61,10 @@ class EasyTierVpnService : VpnService() {
 
     private fun setupVpnInterface(ipv4Address: String, proxyCidrs: List<String>) {
         try {
+            if (stopRequested) {
+                return
+            }
+
             // 解析 IPv4 地址和网络长度
             val (ip, networkLength) = parseIpv4Address(ipv4Address)
 
@@ -81,6 +94,9 @@ class EasyTierVpnService : VpnService() {
                 Log.e(TAG, "创建 VPN 接口失败")
                 return
             }
+            if (stopRequested) {
+                return
+            }
 
             Log.i(TAG, "VPN 接口创建成功")
 
@@ -93,6 +109,9 @@ class EasyTierVpnService : VpnService() {
                 } else {
                     Log.e(TAG, "TUN 文件描述符设置失败: $result")
                 }
+            }
+            if (stopRequested) {
+                return
             }
 
             isRunning = true
@@ -133,6 +152,12 @@ class EasyTierVpnService : VpnService() {
         vpnInterface?.close()
         vpnInterface = null
         Log.i(TAG, "VPN 接口已清理")
+    }
+
+    private fun requestStop() {
+        stopRequested = true
+        cleanup()
+        stopSelf()
     }
 
     override fun onDestroy() {

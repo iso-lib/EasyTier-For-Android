@@ -222,10 +222,12 @@ class EasyTierManager(
     /** 停止 VpnService */
     private fun stopVpnService() {
         try {
-            vpnServiceIntent?.let { intent ->
-                activity.stopService(intent)
-                Log.i(TAG, "VpnService 已停止")
+            val stopIntent = Intent(activity, EasyTierVpnService::class.java).apply {
+                action = EasyTierVpnService.ACTION_STOP
             }
+            activity.startService(stopIntent)
+            activity.stopService(stopIntent)
+            Log.i(TAG, "VpnService 已停止")
             vpnServiceIntent = null
         } catch (e: Exception) {
             Log.e(TAG, "停止 VpnService 时发生异常", e)
