@@ -2,7 +2,8 @@
 ![Built with Gemini](https://img.shields.io/badge/AI%20Assistant-Gemini-blue)
 
 ## Fork说明
-原项目地址：[EasyTier/EasyTierJNIExample](https://github.com/EasyTier/EasyTierJNIExample)
+原项目地址：[cjcxj/EasyTierJNIExample](https://github.com/cjcxj/EasyTierJNIExample)
+
 修改了原项目中的以下内容：<br />
 - 添加了使用github actions构建release的功能
 - 修改了应用图标为EasyTier项目图标
