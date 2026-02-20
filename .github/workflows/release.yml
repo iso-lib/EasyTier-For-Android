@@ -58,7 +58,7 @@ jobs:
         id: apk-path
         run: |
           ORIGINAL_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          RENAMED_APK="app/build/outputs/apk/release/easytier-arm64-v8a.apk"
+          RENAMED_APK="app/build/outputs/apk/release/easytier-universal.apk"
           mv "$ORIGINAL_APK" "$RENAMED_APK"
           echo "apk_path=$RENAMED_APK" >> $GITHUB_OUTPUT
           echo "APK_PATH=$RENAMED_APK"
