@@ -54,14 +54,16 @@ jobs:
         env:
           JAVA_TOOL_OPTIONS: "-Xmx4g"
 
-      - name: Rename APK
+      - name: Rename APKs
         id: apk-path
         run: |
-          ORIGINAL_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          RENAMED_APK="app/build/outputs/apk/release/easytier-universal.apk"
-          mv "$ORIGINAL_APK" "$RENAMED_APK"
-          echo "apk_path=$RENAMED_APK" >> $GITHUB_OUTPUT
-          echo "APK_PATH=$RENAMED_APK"
+          cd app/build/outputs/apk/release/
+          for f in app-*-release.apk; do
+            abi="${f#app-}"
+            abi="${abi%-release.apk}"
+            mv "$f" "easytier-${abi}.apk"
+          done
+          echo "apk_path=app/build/outputs/apk/release/*.apk" >> $GITHUB_OUTPUT
 
       - name: Create Tag
         run: |
@@ -76,7 +78,7 @@ jobs:
           tag_name: v${{ inputs.version_name }}
           name: Release v${{ inputs.version_name }}
           body: ${{ inputs.release_notes }}
-          files: ${{ steps.apk-path.outputs.apk_path }}
+          files: app/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false
         env:

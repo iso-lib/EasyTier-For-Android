@@ -45,8 +45,8 @@ jobs:
         env:
           JAVA_TOOL_OPTIONS: "-Xmx4g"
 
-      - name: Upload AAB
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: app/build/outputs/apk/release/app-release.apk
+          path: app/build/outputs/apk/release/*.apk
