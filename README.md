@@ -9,9 +9,10 @@
 
 修改了原项目中的以下内容：<br />
 - 添加了使用github actions构建release的功能
-- 修改了应用图标为EasyTier项目图标
+- 修改了应用图标为[EasyTier/EasyTier](https://github.com/EasyTier/EasyTier)项目图标
 - 修改了应用名称为 EasyTier
 - 修复停止服务后VPN图标不从状态栏消失的问题
+- 添加了英文界面
 
 ## 项目介绍
 这是一个基于 [easytier-android-jni](https://github.com/EasyTier/EasyTier/tree/main/easytier-contrib/easytier-android-jni) 库构建的 Android 控制面板应用。它提供了一个现代化的、使用 Jetpack Compose 构建的用户界面，用于管理和监控 [EasyTier](https://github.com/EasyTier/EasyTier)的网络连接。

@@ -13,6 +13,7 @@ build/
 .gradle/
 captures/
 .DS_Store
+gradle.properties
 
 # Local configuration files that should not be committed
 local.properties

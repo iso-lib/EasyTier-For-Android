@@ -9,9 +9,10 @@ Original project: [cjcxj/EasyTierJNIExample](https://github.com/cjcxj/EasyTierJN
 
 The following modifications have been made to the original project:<br />
 - Added GitHub Actions workflow for automated release builds
-- Updated app icon to EasyTier project icon
+- Updated app icon to [EasyTier/EasyTier](https://github.com/EasyTier/EasyTier) project icon
 - Changed app name to EasyTier
 - Fixed issue where VPN icon does not disappear from status bar after stopping the service
+- Added English UI
 
 ## Project Introduction
 This is an Android control panel application built based on the [easytier-android-jni](https://github.com/EasyTier/EasyTier/tree/main/easytier-contrib/easytier-android-jni) library. It provides a modern user interface built with Jetpack Compose for managing and monitoring [EasyTier](https://github.com/EasyTier/EasyTier) network connections.
