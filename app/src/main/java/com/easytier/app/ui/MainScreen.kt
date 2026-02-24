@@ -5,26 +5,34 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.easytier.app.ConfigData
+import com.easytier.app.R
 import com.easytier.app.Screen
 import com.easytier.jni.DetailedNetworkInfo
 import com.easytier.jni.EasyTierManager
 import kotlinx.coroutines.launch
 
-data class TabItem(val title: String, val icon: ImageVector)
+data class TabItem(val title: Int, val icon: ImageVector)
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -45,15 +53,18 @@ fun MainScreen(
     onCopyJsonClick: () -> Unit,
     onExportLogsClicked: () -> Unit,
     onExportConfig: (Uri) -> Unit,
-    onImportConfig: (Uri) -> Unit
+    onImportConfig: (Uri) -> Unit,
+    currentLanguage: String,
+    onLanguageChange: (String) -> Unit
 ) {
     val tabs = listOf(
-        TabItem("控制", Icons.Default.Settings),
-        TabItem("状态", Icons.Default.ShowChart),
-        TabItem("日志", Icons.Default.List)
+        TabItem(R.string.tab_control, Icons.Default.Settings),
+        TabItem(R.string.tab_status, Icons.Default.ShowChart),
+        TabItem(R.string.tab_log, Icons.Default.List)
     )
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
+    var showLanguageMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = isRunning) {
         if (isRunning) {
@@ -64,11 +75,41 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("EasyTier VPN 控制面板") },
+                title = { Text(stringResource(R.string.app_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                ),
+                actions = {
+                    Box {
+                        IconButton(onClick = { showLanguageMenu = true }) {
+                            Icon(
+                                Icons.Default.Language,
+                                contentDescription = stringResource(R.string.language),
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showLanguageMenu,
+                            onDismissRequest = { showLanguageMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.language_en)) },
+                                onClick = {
+                                    onLanguageChange("en")
+                                    showLanguageMenu = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.language_zh)) },
+                                onClick = {
+                                    onLanguageChange("zh")
+                                    showLanguageMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -82,8 +123,8 @@ fun MainScreen(
                     Tab(
                         selected = pagerState.currentPage == index,
                         onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
-                        text = { Text(tabItem.title) },
-                        icon = { Icon(tabItem.icon, contentDescription = tabItem.title) }
+                        text = { Text(stringResource(tabItem.title)) },
+                        icon = { Icon(tabItem.icon, contentDescription = stringResource(tabItem.title)) }
                     )
                 }
             }

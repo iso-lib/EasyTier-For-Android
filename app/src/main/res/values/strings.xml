@@ -1,3 +1,146 @@
 <resources>
     <string name="app_name">EasyTier</string>
+    <string name="app_title">EasyTier VPN 控制面板</string>
+
+    <!-- Tabs -->
+    <string name="tab_control">控制</string>
+    <string name="tab_status">状态</string>
+    <string name="tab_log">日志</string>
+
+    <!-- Control Tab -->
+    <string name="stop_service">停止服务</string>
+    <string name="start_service">启动服务</string>
+    <string name="config_options">配置选项</string>
+    <string name="current_selected">当前选中</string>
+    <string name="add_new_config">添加新配置</string>
+    <string name="add">添加</string>
+    <string name="delete_current_config">删除当前配置</string>
+    <string name="delete">删除</string>
+    <string name="import_config">导入配置</string>
+    <string name="import_label">导入</string>
+    <string name="export_current_config">导出当前配置</string>
+    <string name="export_label">导出</string>
+    <string name="core_config">核心配置</string>
+    <string name="instance_name">实例名</string>
+    <string name="network_name">网络名</string>
+    <string name="network_secret">网络密钥</string>
+    <string name="peer_urls">对等节点 URL</string>
+    <string name="peer_urls_placeholder">每行一个 URL</string>
+    <string name="advanced_settings">高级设置</string>
+    <string name="relay_network_whitelist">转发网络白名单</string>
+    <string name="proxy_networks">代理网络</string>
+    <string name="proxy_networks_placeholder">CIDR 格式，例如 10.0.0.0/24</string>
+    <string name="rpc_port">RPC 端口</string>
+    <string name="listeners">监听地址</string>
+    <string name="listeners_placeholder">例如 tcp://0.0.0.0:11010</string>
+    <string name="flags">标志位 (Flags)</string>
+    <string name="latency_first">延迟优先</string>
+    <string name="exit_nodes">出口节点</string>
+    <string name="manual_routes">手动路由</string>
+
+    <!-- Flags Help Texts -->
+    <string name="help_relay_whitelist">仅转发白名单网络的流量，支持通配符。多个网络名用空格隔开。为空则禁用转发。例如：\'*\', \'def*\', \'net1 net2\'</string>
+    <string name="help_latency_first">忽略中转跳数，选择总延迟最低的路径进行通信。</string>
+    <string name="help_private_mode">启用后，不允许与本机网络名称和密码不符的节点通过本机进行握手或中转。</string>
+    <string name="help_enable_kcp">将 TCP 流量转为 KCP 流量，可降低延迟、提升速度。</string>
+    <string name="help_disable_kcp_input">禁用 KCP 入站流量。其他节点将使用 TCP 连接到本节点。</string>
+    <string name="help_disable_p2p">禁用 P2P 模式，所有流量将通过手动指定的服务器中转。</string>
+    <string name="help_no_tun">不创建 TUN 网卡，适合无管理员权限时使用。本节点仅允许被访问，访问其他节点需使用 SOCKS5 代理。</string>
+    <string name="help_multi_thread">使用多线程模式运行核心服务，可能提升性能。</string>
+    <string name="help_accept_dns">启用魔法 DNS，可通过 \'hostname.et.net\' 访问网络内其他节点。</string>
+    <string name="help_bind_device">仅在物理网络接口上监听和建立连接，避免通过其他 VPN 或虚拟网卡通信。</string>
+    <string name="help_enable_exit_node">允许此节点作为其他节点的网络出口，转发其所有流量到公共互联网。</string>
+    <string name="help_disable_encryption">禁用对等节点间的通信加密。警告：不安全，仅在特殊网络环境下使用，且需所有节点配置一致。</string>
+    <string name="help_disable_ipv6">禁用此节点的 IPv6 功能，仅使用 IPv4 进行网络通信。</string>
+    <string name="help_enable_quic">将 TCP 流量转为 QUIC 流量，可降低延迟、提升速度。</string>
+    <string name="help_disable_quic_input">禁用 QUIC 入站流量。其他节点将使用 TCP 连接到本节点。</string>
+    <string name="help_disable_udp_hole_punching">禁用常规的 UDP 打洞尝试，可能影响 P2P 连接建立。</string>
+    <string name="help_disable_sym_hole_punching">禁用针对对称 NAT 的打洞技术（生日攻击），会将其视为更简单的锥形 NAT 处理。</string>
+    <string name="help_relay_all_rpc">允许转发所有对等节点的 RPC 数据包，即使它们不在转发网络白名单中。有助于白名单外的节点建立 P2P 连接。</string>
+    <string name="help_proxy_forward_by_system">通过操作系统内核（而非内置 NAT）来转发子网代理的数据包。</string>
+    <string name="help_use_smoltcp">使用用户态 TCP/IP 协议栈，可绕过某些操作系统防火墙限制，改善子网代理或 KCP 代理的兼容性。</string>
+    <string name="help_manual_routes">手动分配路由CIDR，将禁用子网代理和从对等节点传播的wireguard路由。例如：192.168.0.0/16</string>
+    <string name="help_socks5_server">启用 socks5 服务器，允许 socks5 客户端访问虚拟网络. 格式: &lt;端口&gt;，例如：1080</string>
+    <string name="help_port_forward">将本地端口转发到虚拟网络中的远程端口。例如：udp://0.0.0.0:12345/10.126.126.1:23456，表示将本地UDP端口12345转发到虚拟网络中的10.126.126.1:23456。可以指定多个。</string>
+    <string name="port_forwarding">端口转发</string>
+    <string name="add_rule">添加转发规则</string>
+    <string name="delete_rule">删除规则</string>
+    <string name="select_protocol">选择协议</string>
+    <string name="local_ip">本地IP</string>
+    <string name="dest_ip">目标IP</string>
+    <string name="port">端口</string>
+
+    <!-- Status Tab -->
+    <string name="log_and_config">日志 &amp; 配置</string>
+    <string name="export_raw_logs">导出原始日志</string>
+    <string name="logs_placeholder">服务运行时将在此处显示配置和事件日志。</string>
+    <string name="status_info">状态信息</string>
+    <string name="service_status">服务状态:</string>
+    <string name="running">运行中</string>
+    <string name="stopped">已停止</string>
+    <string name="instance_name_label">实例名称:</string>
+    <string name="none">暂无</string>
+    <string name="virtual_ipv4">虚拟 IPv4:</string>
+    <string name="detailed_network_status">详细网络状态</string>
+    <string name="refresh">刷新</string>
+    <string name="copied">已复制</string>
+    <string name="copy_json">复制网络信息 (JSON)</string>
+    <string name="copy_success">已复制到剪贴板</string>
+
+    <!-- Dialogs -->
+    <string name="delete_config_title">删除配置</string>
+    <string name="delete_config_message">确定要删除配置 "%1$s" 吗？</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+    <string name="config_exported">配置已导出</string>
+    <string name="cannot_delete_last_config">无法删除最后一个配置</string>
+    <string name="no_exportable_events">没有可导出的原始事件</string>
+    <string name="no_exportable_logs">没有可导出的事件日志</string>
+    <string name="vpn_permission_required">需要VPN权限才能启动服务。</string>
+    <string name="import_failed_empty">导入失败：文件为空或无法读取</string>
+    <string name="import_failed_format">导入失败：文件格式无效</string>
+    <string name="import_failed_unknown">导入失败：发生未知错误</string>
+    <string name="import_success">配置 "%1$s" 导入成功</string>
+    
+    <!-- Detailed Network Status -->
+    <string name="local_info">本机信息</string>
+    <string name="stun_info">STUN探测信息</string>
+    <string name="public_ip">公网 IP:</string>
+    <string name="nat_type">NAT 类型:</string>
+    <string name="interface_ips">接口IP地址</string>
+    <string name="peer_nodes_count">对等节点 (%1$d)</string>
+    <string name="status_placeholder">服务运行时将自动显示详细信息。</string>
+    
+    <string name="relay_label">中转</string>
+    <string name="virtual_ip">虚拟 IP:</string>
+    <string name="physical_address">物理地址:</string>
+    <string name="next_hop">下一跳:</string>
+    <string name="traffic_io">流量 (收/发):</string>
+    
+    <!-- Peer Detail -->
+    <string name="peer_detail_title">节点详情</string>
+    <string name="base_info">基本信息</string>
+    <string name="peer_id">节点 ID:</string>
+    <string name="version">版本:</string>
+    <string name="os">操作系统:</string>
+    <string name="hostname">主机名:</string>
+    <string name="connection_stats">连接统计</string>
+    <string name="latency">延迟:</string>
+    <string name="jitter">抖动:</string>
+    <string name="loss_rate">丢包率:</string>
+    <string name="upload_bytes">上传流量:</string>
+    <string name="download_bytes">下载流量:</string>
+    <string name="connection_path">连接路径</string>
+    <string name="route_cost">路由开销:</string>
+    <string name="path_type">路径类型:</string>
+    <string name="p2p">P2P</string>
+    <string name="relay">中转</string>
+    <string name="local_address">本地地址:</string>
+    <string name="remote_address">远程地址:</string>
+    <string name="unknown">未知</string>
+
+    <!-- Language -->
+    <string name="language">语言 / Language</string>
+    <string name="language_en">English</string>
+    <string name="language_zh">中文</string>
 </resources>

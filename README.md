@@ -35,3 +35,22 @@
     </td>
   </tr>
 </table>
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/8ad199c9-06a1-4ae2-b85a-f19b9efb72fc" alt="Control" width="250"/>
+      <br />
+      <sub><b>Control</b></sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/e06b9eac-7a02-41f0-8d70-6470c7b101f8" alt="Status" width="250"/>
+      <br />
+      <sub><b>Status</b></sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/cab0b19e-cbb9-4bcc-83e4-fed0ffe3ef23" alt="Logs" width="250"/>
+      <br />
+      <sub><b>Logs</b></sub>
+    </td>
+  </tr>
+</table>

@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.easytier.app.R
 import com.easytier.jni.FinalPeerInfo
 import com.easytier.app.ui.StatusRow
 
@@ -19,10 +21,10 @@ fun PeerDetailScreen(peer: FinalPeerInfo, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("节点详情: ${peer.hostname}") },
+                title = { Text("${stringResource(R.string.peer_detail_title)}: ${peer.hostname}") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel)) // Reuse cancel or back string if available, using cancel for now or add back
                     }
                 }
             )
@@ -40,39 +42,39 @@ fun PeerDetailScreen(peer: FinalPeerInfo, onBack: () -> Unit) {
             // --- 卡片1: 连接状态 ---
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("连接状态", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.base_info), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Divider(Modifier.padding(vertical = 8.dp))
 
-                    StatusRow("节点名称:", peer.hostname)
-                    StatusRow("虚拟 IP:", peer.virtualIp, isCopyable = true)
-                    StatusRow("连接类型:", if (peer.isDirectConnection) "直连 (P2P)" else "中转 (Relay)")
-                    StatusRow(if (peer.isDirectConnection) "物理地址/端口:" else "下一跳节点:", peer.connectionDetails, isCopyable = true)
+                    StatusRow(stringResource(R.string.hostname), peer.hostname)
+                    StatusRow(stringResource(R.string.virtual_ipv4), peer.virtualIp, isCopyable = true)
+                    StatusRow(stringResource(R.string.path_type), if (peer.isDirectConnection) stringResource(R.string.p2p) else stringResource(R.string.relay))
+                    StatusRow(if (peer.isDirectConnection) stringResource(R.string.remote_address) else stringResource(R.string.connection_path), peer.connectionDetails, isCopyable = true)
                 }
             }
 
             // --- 卡片2: 性能与路由 ---
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("性能与路由", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.connection_stats), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Divider(Modifier.padding(vertical = 8.dp))
 
-                    StatusRow("延迟:", peer.latency)
-                    StatusRow("收/发流量:", peer.traffic)
-                    StatusRow("路由成本(Cost):", peer.routeCost.toString())
-                    StatusRow("下一跳ID:", peer.nextHopPeerId.toString())
+                    StatusRow(stringResource(R.string.latency), peer.latency)
+                    StatusRow(stringResource(R.string.upload_bytes), peer.traffic) // Assuming traffic string contains both
+                    StatusRow(stringResource(R.string.route_cost), peer.routeCost.toString())
+                    StatusRow("Next Hop:", peer.nextHopPeerId.toString())
                 }
             }
 
             // --- 卡片3: 节点信息 ---
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("节点信息", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.peer_detail_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Divider(Modifier.padding(vertical = 8.dp))
 
-                    StatusRow("版本号:", peer.version)
-                    StatusRow("NAT 类型:", peer.natType)
-                    StatusRow("节点ID (Peer ID):", peer.peerId.toString())
-                    StatusRow("实例ID:", peer.instId)
+                    StatusRow(stringResource(R.string.version), peer.version)
+                    StatusRow("NAT Type:", peer.natType)
+                    StatusRow(stringResource(R.string.peer_id), peer.peerId.toString())
+                    StatusRow("Instance ID:", peer.instId)
                 }
             }
         }

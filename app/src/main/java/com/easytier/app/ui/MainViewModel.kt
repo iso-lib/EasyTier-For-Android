@@ -38,6 +38,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
 import java.io.IOException
+import com.easytier.app.R
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
@@ -69,12 +70,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _fullRawEventHistory = mutableStateOf<List<String>>(emptyList())
     val fullRawEventHistory: State<List<String>> = _fullRawEventHistory
 
+    private val _currentLanguage = mutableStateOf("zh") // Default to Chinese
+    val currentLanguage: State<String> = _currentLanguage
+
     val isRunning: Boolean
         get() = _statusState.value?.isRunning == true
 
     init {
         viewModelScope.launch {
             loadAllConfigs()
+            loadLanguage()
         }
         viewModelScope.launch {
             while (true) {
@@ -90,6 +95,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // --- 配置管理 ---
+
+    private suspend fun loadLanguage() {
+        val lang = settingsRepository.getLanguage()
+        if (lang != null) {
+            _currentLanguage.value = lang
+        } else {
+            // Default logic if needed, e.g., based on system locale
+            // For now, default to "zh" as initialized
+        }
+    }
+
+    fun setLanguage(language: String) {
+        _currentLanguage.value = language
+        viewModelScope.launch {
+            settingsRepository.setLanguage(language)
+        }
+    }
 
     private suspend fun loadAllConfigs() {
         val configs = settingsRepository.getAllConfigs()
@@ -140,7 +162,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // 保护逻辑：不允许删除最后一个配置
         if (currentConfigs.size <= 1) {
-            viewModelScope.launch { _toastEvents.emit("无法删除最后一个配置") }
+            viewModelScope.launch { _toastEvents.emit(getApplication<Application>().getString(R.string.cannot_delete_last_config)) }
             return
         }
 
@@ -187,7 +209,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 getApplication<Application>().contentResolver.openOutputStream(uri)?.use { outputStream ->
                     outputStream.write(tomlString.toByteArray())
                 }
-                _toastEvents.emit("配置已导出")
+                _toastEvents.emit(getApplication<Application>().getString(R.string.config_exported))
             } catch (e: Exception) {
                 // 处理错误，例如显示错误消息
                 e.printStackTrace()
@@ -208,7 +230,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 val tomlString = stringBuilder.toString()
                 if (tomlString.isBlank()) {
-                    _toastEvents.emit("导入失败：文件为空或无法读取")
+                    _toastEvents.emit(getApplication<Application>().getString(R.string.import_failed_empty))
                     return@launch
                 }
 
@@ -249,13 +271,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 settingsRepository.saveAllConfigs(newList)
 
                 // 6. 发送成功提示
-                _toastEvents.emit("配置 '${importedConfig.instanceName}' 导入成功")
+                _toastEvents.emit(getApplication<Application>().getString(R.string.import_success, importedConfig.instanceName))
 
             } catch (e: kotlinx.serialization.SerializationException) {
-                _toastEvents.emit("导入失败：文件格式无效")
+                _toastEvents.emit(getApplication<Application>().getString(R.string.import_failed_format))
                 Log.e(TAG, "TOML parsing failed", e)
             } catch (e: Exception) {
-                _toastEvents.emit("导入失败：发生未知错误")
+                _toastEvents.emit(getApplication<Application>().getString(R.string.import_failed_unknown))
                 Log.e(TAG, "Import failed", e)
             }
         }

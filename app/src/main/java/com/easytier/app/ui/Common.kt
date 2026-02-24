@@ -46,6 +46,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.draw.clip
 
 
+import androidx.compose.ui.res.stringResource
+import com.easytier.app.R
+
 /**
  * 一个通用的“标签-值”对显示行。
  *
@@ -64,6 +67,7 @@ fun StatusRow(
 ) {
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
+    val copiedText = stringResource(R.string.copied)
 
     Row(
         modifier = modifier
@@ -75,11 +79,11 @@ fun StatusRow(
                     Modifier.combinedClickable(
                         onClick = {
                             clipboardManager.setText(AnnotatedString(value))
-                            Toast.makeText(context, "'$value' 已复制", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "'$value' $copiedText", Toast.LENGTH_SHORT).show()
                         },
                         onLongClick = {
                             clipboardManager.setText(AnnotatedString(value))
-                            Toast.makeText(context, "'$value' 已复制", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "'$value' $copiedText", Toast.LENGTH_SHORT).show()
                         }
                     )
                 } else {

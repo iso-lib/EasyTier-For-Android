@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.easytier.app.R
 import com.easytier.app.ui.StatusRow
 import com.easytier.jni.DetailedNetworkInfo
 import com.easytier.jni.EasyTierManager
@@ -83,11 +85,11 @@ fun LogTab(rawEvents: List<String>, onExportClicked: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("日志 & 配置", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.log_and_config), style = MaterialTheme.typography.titleLarge)
             OutlinedButton(onClick = onExportClicked, enabled = parsedEvents.isNotEmpty()) {
-                Icon(Icons.Default.Save, "导出", modifier = Modifier.size(ButtonDefaults.IconSize))
+                Icon(Icons.Default.Save, stringResource(R.string.export_label), modifier = Modifier.size(ButtonDefaults.IconSize))
                 Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                Text("导出原始日志")
+                Text(stringResource(R.string.export_raw_logs))
             }
         }
 
@@ -95,7 +97,7 @@ fun LogTab(rawEvents: List<String>, onExportClicked: () -> Unit) {
 
         if (parsedEvents.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("服务运行时将在此处显示配置和事件日志。")
+                Text(stringResource(R.string.logs_placeholder))
             }
         } else {
             val lazyListState = rememberLazyListState()
@@ -154,11 +156,11 @@ fun StatusCard(status: EasyTierManager.EasyTierStatus?, isRunning: Boolean) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("状态信息", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.status_info), style = MaterialTheme.typography.titleMedium)
             Divider(Modifier.padding(vertical = 8.dp))
-            StatusRow("服务状态:", if (isRunning) "运行中" else "已停止")
-            StatusRow("实例名称:", status?.instanceName ?: "暂无")
-            StatusRow("虚拟 IPv4:", status?.currentIpv4 ?: "暂无", isCopyable = true)
+            StatusRow(stringResource(R.string.service_status), if (isRunning) stringResource(R.string.running) else stringResource(R.string.stopped))
+            StatusRow(stringResource(R.string.instance_name_label), status?.instanceName ?: stringResource(R.string.none))
+            StatusRow(stringResource(R.string.virtual_ipv4), status?.currentIpv4 ?: stringResource(R.string.none), isCopyable = true)
         }
     }
 }
@@ -191,38 +193,38 @@ fun DetailedInfoCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("详细网络状态", style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.detailed_network_status), style = MaterialTheme.typography.titleLarge)
                 IconButton(onClick = onRefresh) {
-                    Icon(Icons.Default.Refresh, contentDescription = "刷新")
+                    Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.refresh))
                 }
             }
             Divider(Modifier.padding(vertical = 8.dp))
 
             if (info == null) {
                 Text(
-                    "服务运行时将自动显示详细信息。",
+                    stringResource(R.string.status_placeholder),
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp)
                 )
             } else {
-                InfoSection(title = "本机信息") {
-                    StatusRow("主机名:", info.myNode.hostname)
-                    StatusRow("版本:", info.myNode.version)
-                    StatusRow("虚拟IPv4:", info.myNode.virtualIp, isCopyable = true)
+                InfoSection(title = stringResource(R.string.local_info)) {
+                    StatusRow(stringResource(R.string.hostname), info.myNode.hostname)
+                    StatusRow(stringResource(R.string.version), info.myNode.version)
+                    StatusRow(stringResource(R.string.virtual_ipv4), info.myNode.virtualIp, isCopyable = true)
                 }
-                InfoSection(title = "STUN探测信息") {
-                    StatusRow("公网 IP:", info.myNode.publicIp, isCopyable = true)
-                    StatusRow("NAT 类型:", info.myNode.natType)
+                InfoSection(title = stringResource(R.string.stun_info)) {
+                    StatusRow(stringResource(R.string.public_ip), info.myNode.publicIp, isCopyable = true)
+                    StatusRow(stringResource(R.string.nat_type), info.myNode.natType)
                 }
-                InfoSection(title = "监听器") {
+                InfoSection(title = stringResource(R.string.listeners)) {
                     Text(
                         info.myNode.listeners.joinToString("\n"),
                         style = MaterialTheme.typography.bodySmall,
                         lineHeight = 16.sp
                     )
                 }
-                InfoSection(title = "接口IP地址") {
+                InfoSection(title = stringResource(R.string.interface_ips)) {
                     Text(
                         info.myNode.interfaceIps.joinToString("\n"),
                         style = MaterialTheme.typography.bodySmall,
@@ -232,7 +234,7 @@ fun DetailedInfoCard(
 
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "对等节点 (${info.finalPeerList.size})",
+                    stringResource(R.string.peer_nodes_count, info.finalPeerList.size),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(Modifier.height(8.dp))
@@ -251,7 +253,7 @@ fun DetailedInfoCard(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = isRunning
             ) {
-                Text("复制网络信息 (JSON)")
+                Text(stringResource(R.string.copy_json))
             }
         }
     }
@@ -298,7 +300,7 @@ fun FinalPeerInfoItem(peer: FinalPeerInfo, onClick: () -> Unit) {
                 )
                 if (!peer.isDirectConnection) {
                     Text(
-                        text = "中转",
+                        text = stringResource(R.string.relay_label),
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier
@@ -311,13 +313,13 @@ fun FinalPeerInfoItem(peer: FinalPeerInfo, onClick: () -> Unit) {
                 }
             }
             Divider(Modifier.padding(vertical = 4.dp))
-            StatusRow("虚拟 IP:", peer.virtualIp)
+            StatusRow(stringResource(R.string.virtual_ip), peer.virtualIp)
             StatusRow(
-                if (peer.isDirectConnection) "物理地址:" else "下一跳:",
+                if (peer.isDirectConnection) stringResource(R.string.physical_address) else stringResource(R.string.next_hop),
                 peer.connectionDetails
             )
-            StatusRow("延迟:", peer.latency)
-            StatusRow("流量 (收/发):", peer.traffic)
+            StatusRow(stringResource(R.string.latency), peer.latency)
+            StatusRow(stringResource(R.string.traffic_io), peer.traffic)
         }
     }
 }

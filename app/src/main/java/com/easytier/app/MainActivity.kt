@@ -8,31 +8,33 @@ import android.net.VpnService
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.os.LocaleListCompat
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import com.easytier.app.ui.MainScreen
 import com.easytier.app.ui.MainViewModel
 import com.easytier.app.ui.PeerDetailScreen
 import kotlinx.coroutines.flow.collectLatest
-import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -46,7 +48,7 @@ sealed class Screen(val route: String) {
     }
 }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
@@ -104,6 +106,34 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Observe language changes from ViewModel
+        lifecycleScope.launch {
+            viewModel.currentLanguage.value.let { language ->
+                if (language.isNotEmpty()) {
+                    val appLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+                    if (appLocale != language) {
+                        val localeList = LocaleListCompat.forLanguageTags(language)
+                        AppCompatDelegate.setApplicationLocales(localeList)
+                    }
+                }
+            }
+        }
+        
+        // Also observe for future changes (if triggered from UI)
+        lifecycleScope.launch {
+            androidx.compose.runtime.snapshotFlow { viewModel.currentLanguage.value }
+                .collect { language ->
+                     if (language.isNotEmpty()) {
+                        val currentAppLocales = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+                        if (!currentAppLocales.contains(language)) {
+                             val localeList = LocaleListCompat.forLanguageTags(language)
+                             AppCompatDelegate.setApplicationLocales(localeList)
+                        }
+                     }
+                }
+        }
+
         setContent {
 
             val context = LocalContext.current // 获取当前 Composable 的 Context
@@ -170,7 +200,9 @@ class MainActivity : ComponentActivity() {
                             onCopyJsonClick = viewModel::copyJsonToClipboard,
                             onExportLogsClicked = ::launchCreateLogFile,
                             onExportConfig = { uri -> viewModel.exportConfig(uri) },
-                            onImportConfig = { uri -> viewModel.importConfig(uri) }
+                            onImportConfig = { uri -> viewModel.importConfig(uri) },
+                            currentLanguage = viewModel.currentLanguage.value,
+                            onLanguageChange = { lang -> viewModel.setLanguage(lang) }
                         )
                     }
 

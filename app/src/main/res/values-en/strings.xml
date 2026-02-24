@@ -1,0 +1,146 @@
+<resources>
+    <string name="app_name">EasyTier</string>
+    <string name="app_title">EasyTier VPN Control Panel</string>
+
+    <!-- Tabs -->
+    <string name="tab_control">Control</string>
+    <string name="tab_status">Status</string>
+    <string name="tab_log">Logs</string>
+
+    <!-- Control Tab -->
+    <string name="stop_service">Stop Service</string>
+    <string name="start_service">Start Service</string>
+    <string name="config_options">Config Options</string>
+    <string name="current_selected">Selected</string>
+    <string name="add_new_config">Add New Config</string>
+    <string name="add">Add</string>
+    <string name="delete_current_config">Delete Current Config</string>
+    <string name="delete">Delete</string>
+    <string name="import_config">Import Config</string>
+    <string name="import_label">Import</string>
+    <string name="export_current_config">Export Current Config</string>
+    <string name="export_label">Export</string>
+    <string name="core_config">Core Config</string>
+    <string name="instance_name">Instance Name</string>
+    <string name="network_name">Network Name</string>
+    <string name="network_secret">Network Secret</string>
+    <string name="peer_urls">Peer URLs</string>
+    <string name="peer_urls_placeholder">One URL per line</string>
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="relay_network_whitelist">Relay Network Whitelist</string>
+    <string name="proxy_networks">Proxy Networks</string>
+    <string name="proxy_networks_placeholder">CIDR format, e.g. 10.0.0.0/24</string>
+    <string name="rpc_port">RPC Port</string>
+    <string name="listeners">Listeners</string>
+    <string name="listeners_placeholder">e.g. tcp://0.0.0.0:11010</string>
+    <string name="flags">Flags</string>
+    <string name="latency_first">Latency First</string>
+    <string name="exit_nodes">Exit Nodes</string>
+    <string name="manual_routes">Manual Routes</string>
+
+    <!-- Flags Help Texts -->
+    <string name="help_relay_whitelist">Only forward traffic for whitelisted networks. Supports wildcards. Separate multiple networks with spaces. Empty to disable forwarding. E.g. \'*\' \'def*\' \'net1 net2\'</string>
+    <string name="help_latency_first">Ignore relay hops and choose the path with the lowest total latency.</string>
+    <string name="help_private_mode">Enable private mode. Only peers with matching network name and secret can handshake or relay through this node.</string>
+    <string name="help_enable_kcp">Convert TCP traffic to KCP traffic to reduce latency and improve speed.</string>
+    <string name="help_disable_kcp_input">Disable KCP input. Other peers will connect to this node using TCP.</string>
+    <string name="help_disable_p2p">Disable P2P mode. All traffic will be relayed through manually specified servers.</string>
+    <string name="help_no_tun">Do not create TUN interface. Useful when running without admin privileges. This node can only be accessed; accessing other nodes requires SOCKS5 proxy.</string>
+    <string name="help_multi_thread">Run core services in multi-threaded mode, potentially improving performance.</string>
+    <string name="help_accept_dns">Enable Magic DNS. Access other nodes in the network via \'hostname.et.net\'.</string>
+    <string name="help_bind_device">Bind to physical network interface only, avoiding communication through other VPNs or virtual interfaces.</string>
+    <string name="help_enable_exit_node">Allow this node to act as an exit node for other nodes, forwarding all their traffic to the public internet.</string>
+    <string name="help_disable_encryption">Disable encryption between peers. WARNING: Insecure. Use only in trusted networks and ensure all nodes are configured consistently.</string>
+    <string name="help_disable_ipv6">Disable IPv6 for this node. Only use IPv4 for network communication.</string>
+    <string name="help_enable_quic">Convert TCP traffic to QUIC traffic to reduce latency and improve speed.</string>
+    <string name="help_disable_quic_input">Disable QUIC input. Other peers will connect to this node using TCP.</string>
+    <string name="help_disable_udp_hole_punching">Disable regular UDP hole punching. May affect P2P connection establishment.</string>
+    <string name="help_disable_sym_hole_punching">Disable symmetric NAT hole punching (birthday attack). Treats it as simpler cone NAT.</string>
+    <string name="help_relay_all_rpc">Allow forwarding all RPC packets from peers, even if not in the relay whitelist. Helps peers outside the whitelist establish P2P connections.</string>
+    <string name="help_proxy_forward_by_system">Forward subnet proxy packets via OS kernel instead of built-in NAT.</string>
+    <string name="help_use_smoltcp">Use user-space TCP/IP stack (smoltcp). Bypasses some OS firewall restrictions and improves compatibility for subnet proxy or KCP proxy.</string>
+    <string name="help_manual_routes">Manually assign route CIDRs. Disables subnet proxy and WireGuard route propagation from peers. E.g. 192.168.0.0/16</string>
+    <string name="help_socks5_server">Enable SOCKS5 server to allow clients to access the virtual network. Format: &lt;port&gt;, e.g. 1080</string>
+    <string name="help_port_forward">Forward local ports to remote ports in the virtual network. E.g. udp://0.0.0.0:12345/10.126.126.1:23456 forwards local UDP 12345 to 10.126.126.1:23456. Multiple entries allowed.</string>
+    <string name="port_forwarding">Port Forwarding</string>
+    <string name="add_rule">Add Rule</string>
+    <string name="delete_rule">Delete Rule</string>
+    <string name="select_protocol">Select Protocol</string>
+    <string name="local_ip">Local IP</string>
+    <string name="dest_ip">Dest IP</string>
+    <string name="port">Port</string>
+
+    <!-- Status Tab -->
+    <string name="log_and_config">Logs &amp; Config</string>
+    <string name="export_raw_logs">Export Raw Logs</string>
+    <string name="logs_placeholder">Config and event logs will be displayed here when the service is running.</string>
+    <string name="status_info">Status Info</string>
+    <string name="service_status">Service Status:</string>
+    <string name="running">Running</string>
+    <string name="stopped">Stopped</string>
+    <string name="instance_name_label">Instance Name:</string>
+    <string name="none">None</string>
+    <string name="virtual_ipv4">Virtual IPv4:</string>
+    <string name="detailed_network_status">Detailed Network Status</string>
+    <string name="refresh">Refresh</string>
+    <string name="copied">Copied</string>
+    <string name="copy_json">Copy Network Info (JSON)</string>
+    <string name="copy_success">Copied to clipboard</string>
+
+    <!-- Dialogs -->
+    <string name="delete_config_title">Delete Config</string>
+    <string name="delete_config_message">Are you sure you want to delete config "%1$s"?</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="config_exported">Config Exported</string>
+    <string name="cannot_delete_last_config">Cannot delete the last config</string>
+    <string name="no_exportable_events">No exportable raw events</string>
+    <string name="no_exportable_logs">No exportable event logs</string>
+    <string name="vpn_permission_required">VPN permission is required to start the service.</string>
+    <string name="import_failed_empty">Import failed: File is empty or unreadable</string>
+    <string name="import_failed_format">Import failed: Invalid file format</string>
+    <string name="import_failed_unknown">Import failed: Unknown error</string>
+    <string name="import_success">Config "%1$s" imported successfully</string>
+    
+    <!-- Detailed Network Status -->
+    <string name="local_info">Local Info</string>
+    <string name="stun_info">STUN Info</string>
+    <string name="public_ip">Public IP:</string>
+    <string name="nat_type">NAT Type:</string>
+    <string name="interface_ips">Interface IPs</string>
+    <string name="peer_nodes_count">Peers (%1$d)</string>
+    <string name="status_placeholder">Detailed information will be displayed here when the service is running.</string>
+    
+    <string name="relay_label">Relay</string>
+    <string name="virtual_ip">Virtual IP:</string>
+    <string name="physical_address">Phys Addr:</string>
+    <string name="next_hop">Next Hop:</string>
+    <string name="traffic_io">Traffic (Rx/Tx):</string>
+    
+    <!-- Peer Detail -->
+    <string name="peer_detail_title">Peer Details</string>
+    <string name="base_info">Basic Info</string>
+    <string name="peer_id">Peer ID:</string>
+    <string name="version">Version:</string>
+    <string name="os">OS:</string>
+    <string name="hostname">Hostname:</string>
+    <string name="connection_stats">Connection Stats</string>
+    <string name="latency">Latency:</string>
+    <string name="jitter">Jitter:</string>
+    <string name="loss_rate">Loss Rate:</string>
+    <string name="upload_bytes">Upload:</string>
+    <string name="download_bytes">Download:</string>
+    <string name="connection_path">Connection Path</string>
+    <string name="route_cost">Route Cost:</string>
+    <string name="path_type">Path Type:</string>
+    <string name="p2p">P2P</string>
+    <string name="relay">Relay</string>
+    <string name="local_address">Local Address:</string>
+    <string name="remote_address">Remote Address:</string>
+    <string name="unknown">Unknown</string>
+
+    <!-- Language -->
+    <string name="language">Language / 语言</string>
+    <string name="language_en">English</string>
+    <string name="language_zh">中文</string>
+</resources>

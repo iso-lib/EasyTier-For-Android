@@ -18,6 +18,7 @@ class SettingsRepository(private val context: Context) {
 
     private val allConfigsKey = stringPreferencesKey("all_user_configs")
     private val activeConfigIdKey = stringPreferencesKey("active_config_id")
+    private val languageKey = stringPreferencesKey("app_language")
 
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
@@ -51,6 +52,16 @@ class SettingsRepository(private val context: Context) {
     suspend fun setActiveConfigId(id: String) {
         context.dataStore.edit {
             it[activeConfigIdKey] = id
+        }
+    }
+
+    suspend fun getLanguage(): String? {
+        return context.dataStore.data.map { it[languageKey] }.first()
+    }
+
+    suspend fun setLanguage(language: String) {
+        context.dataStore.edit {
+            it[languageKey] = language
         }
     }
 }
