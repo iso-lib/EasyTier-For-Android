@@ -1,6 +1,9 @@
 # EasyTier for Android 控制面板
 ![Built with Gemini](https://img.shields.io/badge/AI%20Assistant-Gemini-blue)
 
+## 链接
+[English Documentation](README_EN.md)
+
 ## Fork说明
 原项目地址：[cjcxj/EasyTierJNIExample](https://github.com/cjcxj/EasyTierJNIExample)
 
