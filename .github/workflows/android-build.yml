@@ -26,6 +26,15 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Create gradle.properties
+        run: |
+           echo "android.useAndroidX=true" >> gradle.properties
+           echo "android.nonTransitiveRClass=false" >> gradle.properties
+           echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError" >> gradle.properties
+           echo "org.gradle.daemon=true" >> gradle.properties
+           echo "org.gradle.parallel=true" >> gradle.properties
+           echo "org.gradle.configureondemand=true" >> gradle.properties
+
       - name: Decode Keystore
         env:
           ENCODED_STRING: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
