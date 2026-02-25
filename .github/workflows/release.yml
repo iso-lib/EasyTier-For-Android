@@ -24,6 +24,11 @@ jobs:
           repository: EasyTier/EasyTier
           path: EasyTier
 
+      - name: Install protoc
+        uses: aramirez/download-protoc@v1
+        with:
+          version: 29.1
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -39,6 +44,9 @@ jobs:
 
       - name: Build easytier-ffi for all targets
         working-directory: EasyTier/easytier-contrib/easytier-ffi
+        env:
+          PROTOC: ${{ steps.install-protoc.outputs.protoc-path }}
+          PROTOC_INCLUDE: ${{ steps.install-protoc.outputs.protoc-include }}
         run: |
           cargo ndk -t arm64-v8a build --release
           cargo ndk -t armeabi-v7a build --release
@@ -47,6 +55,9 @@ jobs:
 
       - name: Build easytier-android-jni for all targets
         working-directory: EasyTier/easytier-contrib/easytier-android-jni
+        env:
+          PROTOC: ${{ steps.install-protoc.outputs.protoc-path }}
+          PROTOC_INCLUDE: ${{ steps.install-protoc.outputs.protoc-include }}
         run: |
           cargo ndk -t arm64-v8a build --release
           cargo ndk -t armeabi-v7a build --release
