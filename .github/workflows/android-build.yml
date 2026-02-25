@@ -21,9 +21,19 @@ jobs:
       - name: Download protoc
         run: |
           PROTOC_VERSION="29.1"
+          PROTOC_DIR="$HOME/protoc"
+          mkdir -p "$PROTOC_DIR"
+          echo "Downloading protoc to $PROTOC_DIR"
           curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip"
-          unzip -o "protoc-${PROTOC_VERSION}-linux-x86_64.zip" -d /usr/local
-          echo "PROTOC=/usr/local/bin/protoc" >> $GITHUB_ENV
+          echo "Unzipping protoc to $PROTOC_DIR"
+          unzip -o "protoc-${PROTOC_VERSION}-linux-x86_64.zip" -d "$PROTOC_DIR"
+          echo "Setting PROTOC environment variable to $PROTOC_DIR/bin/protoc"
+          echo "PROTOC=$PROTOC_DIR/bin/protoc" >> $GITHUB_ENV
+          echo "Adding $PROTOC_DIR/bin to PATH"
+          echo "PATH=$PROTOC_DIR/bin:$PATH" >> $GITHUB_ENV
+          echo "Verifying protoc installation"
+          ls -la "$PROTOC_DIR/bin/"
+          "$PROTOC_DIR/bin/protoc" --version || echo "protoc not found"
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -41,7 +51,7 @@ jobs:
       - name: Build easytier-ffi for all targets
         working-directory: EasyTier/easytier-contrib/easytier-ffi
         env:
-          PROTOC: /usr/local/bin/protoc
+          PROTOC: ${{ env.PROTOC }}
         run: |
           cargo ndk -t arm64-v8a build --release
           cargo ndk -t armeabi-v7a build --release
@@ -51,7 +61,7 @@ jobs:
       - name: Build easytier-android-jni for all targets
         working-directory: EasyTier/easytier-contrib/easytier-android-jni
         env:
-          PROTOC: /usr/local/bin/protoc
+          PROTOC: ${{ env.PROTOC }}
         run: |
           cargo ndk -t arm64-v8a build --release
           cargo ndk -t armeabi-v7a build --release
