@@ -46,7 +46,12 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android
-          toolchain: '1.95.0'
+
+      - name: Rust Version Info
+        run: |
+          rustc --version
+          cargo --version
+          rustup target list --installed
 
       - name: Cache Rust Cargo Registry
         uses: actions/cache@v4
@@ -70,28 +75,79 @@ jobs:
         run: cargo install cargo-ndk
 
       - name: Setup Android NDK
+        id: setup-ndk
         run: |
+          set -e
           ANDROID_SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          # Try to find existing NDK installation
+          echo "ANDROID_HOME=$ANDROID_HOME"
+
+          # List available NDK installations
+          echo "=== Available NDK installations ==="
+          ls -la "$ANDROID_SDK_ROOT/ndk/" 2>/dev/null || echo "No NDK directory found"
+
+          # Try to find existing NDK installation (prefer latest)
           NDK_PATH=$(ls -d "$ANDROID_SDK_ROOT/ndk/"* 2>/dev/null | sort -V | tail -1)
-          if [ -z "$NDK_PATH" ]; then
+          if [ -n "$NDK_PATH" ] && [ -d "$NDK_PATH" ]; then
+            echo "Found existing NDK: $NDK_PATH"
+          else
             echo "No NDK found, installing NDK 27..."
-            yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "ndk;27.0.12077973" || true
+            # Find sdkmanager
+            SDKMANAGER=""
+            for candidate in \
+              "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+              "$ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager" \
+              "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"; do
+              if [ -x "$candidate" ]; then
+                SDKMANAGER="$candidate"
+                break
+              fi
+            done
+            if [ -z "$SDKMANAGER" ]; then
+              echo "ERROR: sdkmanager not found!"
+              echo "Listing SDK contents:"
+              find "$ANDROID_SDK_ROOT" -name "sdkmanager" 2>/dev/null || true
+              exit 1
+            fi
+            echo "Using sdkmanager: $SDKMANAGER"
+            echo "y" | "$SDKMANAGER" "ndk;27.0.12077973"
             NDK_PATH="$ANDROID_SDK_ROOT/ndk/27.0.12077973"
+            if [ ! -d "$NDK_PATH" ]; then
+              echo "ERROR: NDK installation failed, $NDK_PATH does not exist"
+              exit 1
+            fi
           fi
+
+          # Verify NDK
+          echo "=== NDK verification ==="
+          echo "NDK path: $NDK_PATH"
+          ls "$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android"* 2>/dev/null | head -3 || echo "Warning: aarch64 toolchain not found in expected location"
+
+          # Set environment variables for cargo-ndk
+          echo "ANDROID_NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
           echo "ANDROID_NDK_ROOT=$NDK_PATH" >> $GITHUB_ENV
+          echo "NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
           echo "Using NDK: $NDK_PATH"
+
+      - name: Verify Rust Target
+        run: |
+          rustup target add aarch64-linux-android
+          rustup target list --installed
+          rustc --print sysroot
+          ls "$(rustc --print sysroot)/lib/rustlib/aarch64-linux-android/" 2>/dev/null || echo "WARNING: aarch64-linux-android sysroot not found!"
 
       - name: Build EasyTier FFI Library
         run: |
-          cd easytier-source/easytier-contrib/easytier-ffi
-          cargo ndk -t arm64-v8a build --release
+          set -e
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
+          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
+          cargo ndk --version
+          cargo ndk -t arm64-v8a build --release --manifest-path easytier-source/easytier-contrib/easytier-ffi/Cargo.toml
 
       - name: Build EasyTier Android JNI Library
         run: |
-          cd easytier-source/easytier-contrib/easytier-android-jni
-          cargo ndk -t arm64-v8a build --release
+          set -e
+          cargo ndk -t arm64-v8a build --release --manifest-path easytier-source/easytier-contrib/easytier-android-jni/Cargo.toml
 
       - name: Copy Native Libraries to jniLibs
         run: |
