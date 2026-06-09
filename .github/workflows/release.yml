@@ -244,8 +244,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ inputs.version_name }}" -m "Release v${{ inputs.version_name }}"
-          git push origin "v${{ inputs.version_name }}"
+          TAG="v${{ inputs.version_name }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists locally, deleting..."
+            git tag -d "$TAG"
+          fi
+          if git ls-remote --tags origin "$TAG" | grep -q "$TAG"; then
+            echo "Tag $TAG already exists on remote, deleting..."
+            git push --delete origin "$TAG"
+          fi
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
