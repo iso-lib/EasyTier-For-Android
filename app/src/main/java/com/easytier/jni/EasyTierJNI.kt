@@ -4,8 +4,8 @@ package com.easytier.jni
 object EasyTierJNI {
 
     init {
-        // 必须先加载 ffi 库，android_jni 依赖 ffi 的符号
-        System.loadLibrary("easytier_ffi")
+        // easytier-ffi is statically linked into easytier_android_jni,
+        // so only one .so needs to be loaded
         System.loadLibrary("easytier_android_jni")
     }
 
