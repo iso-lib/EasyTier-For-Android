@@ -4,7 +4,8 @@ package com.easytier.jni
 object EasyTierJNI {
 
     init {
-        // 加载本地库
+        // 必须先加载 ffi 库，android_jni 依赖 ffi 的符号
+        System.loadLibrary("easytier_ffi")
         System.loadLibrary("easytier_android_jni")
     }
 
