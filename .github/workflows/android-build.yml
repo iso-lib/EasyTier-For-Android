@@ -150,22 +150,30 @@ jobs:
           mkdir -p app/src/main/jniLibs/arm64-v8a
           NDK_HOME="${ANDROID_NDK_HOME:-$ANDROID_NDK_ROOT}"
           STRIP="${NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip"
+          LIBCXX="${NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
+
+          # Copy Rust .so files
+          cp easytier-source/target/aarch64-linux-android/release/libeasytier_android_jni.so app/src/main/jniLibs/arm64-v8a/
+          cp easytier-source/target/aarch64-linux-android/release/libeasytier_ffi.so app/src/main/jniLibs/arm64-v8a/
+
+          # Copy libc++_shared.so (required by Rust-compiled native libs)
+          if [ -f "$LIBCXX" ]; then
+            cp "$LIBCXX" app/src/main/jniLibs/arm64-v8a/
+            echo "Copied libc++_shared.so from NDK"
+          else
+            echo "WARNING: libc++_shared.so not found at $LIBCXX"
+          fi
+
           if [ -x "$STRIP" ]; then
-            echo "Stripping with llvm-strip..."
+            echo "Stripping debug symbols..."
             echo "  Before:"
             ls -lh easytier-source/target/aarch64-linux-android/release/libeasytier_*.so
-            cp easytier-source/target/aarch64-linux-android/release/libeasytier_android_jni.so app/src/main/jniLibs/arm64-v8a/
-            cp easytier-source/target/aarch64-linux-android/release/libeasytier_ffi.so app/src/main/jniLibs/arm64-v8a/
             "$STRIP" --strip-debug app/src/main/jniLibs/arm64-v8a/libeasytier_android_jni.so
             "$STRIP" --strip-debug app/src/main/jniLibs/arm64-v8a/libeasytier_ffi.so
-            echo "  After strip:"
-            ls -lh app/src/main/jniLibs/arm64-v8a/
-          else
-            echo "llvm-strip not found, copying without stripping"
-            cp easytier-source/target/aarch64-linux-android/release/libeasytier_android_jni.so app/src/main/jniLibs/arm64-v8a/
-            cp easytier-source/target/aarch64-linux-android/release/libeasytier_ffi.so app/src/main/jniLibs/arm64-v8a/
-            ls -lh app/src/main/jniLibs/arm64-v8a/
           fi
+
+          echo "  Final jniLibs:"
+          ls -lh app/src/main/jniLibs/arm64-v8a/
 
       - name: Update Proto Files
         if: ${{ inputs.update_proto || github.event_name != 'workflow_dispatch' }}
