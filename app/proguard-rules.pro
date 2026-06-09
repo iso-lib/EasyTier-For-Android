@@ -68,6 +68,11 @@
 -keep class peer_rpc.** { *; }
 -keep class tests.** { *; }
 -keep class web.** { *; }
+# 新 API 包 (EasyTier v2.6.0+ 重构)
+-keep class api.manage.** { *; }
+-keep class api.instance.** { *; }
+-keep class api.config.** { *; }
+-keep class api.logger.** { *; }
 
 
 # ===================================================================

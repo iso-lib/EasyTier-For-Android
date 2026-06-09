@@ -300,35 +300,45 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        val configToml = generateTomlConfig(_activeConfig.value)
-        Log.d(TAG, "Generated Config:\n$configToml")
+        try {
+            val configToml = generateTomlConfig(_activeConfig.value)
+            Log.d(TAG, "Generated Config:\n$configToml")
 
-        val timeStamp = java.text.SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
-            java.util.Locale.getDefault()
-        ).format(java.util.Date())
+            val timeStamp = java.text.SimpleDateFormat(
+                "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+                java.util.Locale.getDefault()
+            ).format(java.util.Date())
 
 
-        val tomlLogEntry = JSONObject()
-            .put("time", timeStamp)
-            .put(
-                "event",
-                JSONObject().put(
-                    "GeneratedTomlConfig",
-                    "\n--- 使用的TOML配置 ---\n$configToml\n-----------------------------"
+            val tomlLogEntry = JSONObject()
+                .put("time", timeStamp)
+                .put(
+                    "event",
+                    JSONObject().put(
+                        "GeneratedTomlConfig",
+                        "\n--- 使用的TOML配置 ---\n$configToml\n-----------------------------"
+                    )
                 )
+                .toString()
+
+            _fullRawEventHistory.value = listOf(tomlLogEntry)
+            _fullEventHistory.value = emptyList()
+
+            easyTierManager = EasyTierManager(
+                activity = activity,
+                instanceName = _activeConfig.value.instanceName,
+                networkConfig = configToml
             )
-            .toString()
-
-        _fullRawEventHistory.value = listOf(tomlLogEntry)
-        _fullEventHistory.value = emptyList()
-
-        easyTierManager = EasyTierManager(
-            activity = activity,
-            instanceName = _activeConfig.value.instanceName,
-            networkConfig = configToml
-        )
-        easyTierManager?.start()
+            easyTierManager?.start()
+        } catch (e: UnsatisfiedLinkError) {
+            Log.e(TAG, "Native library load failed", e)
+            easyTierManager = null
+            viewModelScope.launch { _toastEvents.emit("本地库加载失败: ${e.message}") }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start EasyTier", e)
+            easyTierManager = null
+            viewModelScope.launch { _toastEvents.emit("启动失败: ${e.message}") }
+        }
     }
 
     fun stopEasyTier() {
