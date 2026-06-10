@@ -147,7 +147,19 @@ jobs:
             echo "Patched easytier-android-jni/Cargo.toml to add easytier-ffi dependency"
           fi
 
-          cargo ndk -t arm64-v8a build --release -p easytier-android-jni
+          cargo clean -p easytier-android-jni -p easytier-ffi
+          rm -f target/aarch64-linux-android/release/libeasytier_android_jni.so
+          cargo ndk --platform 24 -t arm64-v8a build --release -p easytier-android-jni
+
+          JNI_SO="target/aarch64-linux-android/release/libeasytier_android_jni.so"
+          test -f "$JNI_SO"
+          size="$(stat -c%s "$JNI_SO")"
+          echo "Built $JNI_SO ($size bytes)"
+          if [ "$size" -lt 5000000 ]; then
+            echo "ERROR: libeasytier_android_jni.so is too small for the expected single-library build."
+            echo "This usually means EasyTier FFI was not linked into the JNI library."
+            exit 1
+          fi
 
       - name: Strip and Copy Native Library to jniLibs
         run: |
@@ -182,6 +194,11 @@ jobs:
             echo "ERROR: libeasytier_android_jni.so still depends on libeasytier_ffi.so"
             echo "The APK would fail on Android with dlopen missing-symbol errors if the FFI library is stale or loaded locally."
             exit 1
+          fi
+
+          if [ -x "$READELF" ]; then
+            echo "  Dynamic dependencies:"
+            "$READELF" -d app/src/main/jniLibs/arm64-v8a/libeasytier_android_jni.so | grep "NEEDED" || true
           fi
 
           echo "  Final jniLibs:"
@@ -245,6 +262,18 @@ jobs:
         run: ./gradlew assembleRelease --no-daemon
         env:
           JAVA_TOOL_OPTIONS: "-Xmx4g"
+
+      - name: Verify APK Native Libraries
+        run: |
+          set -e
+          APK="$(ls app/build/outputs/apk/release/*.apk | head -1)"
+          echo "Verifying $APK"
+          unzip -l "$APK" | grep "lib/arm64-v8a/"
+          unzip -l "$APK" | grep -q "lib/arm64-v8a/libeasytier_android_jni.so"
+          if unzip -l "$APK" | grep -q "lib/arm64-v8a/libeasytier_ffi.so"; then
+            echo "ERROR: APK still contains stale libeasytier_ffi.so"
+            exit 1
+          fi
 
       - name: Upload APKs
         uses: actions/upload-artifact@v4
