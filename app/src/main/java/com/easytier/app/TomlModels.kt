@@ -102,9 +102,12 @@ data class PortForward(
 
 @Serializable
 data class Flags(
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
     @SerialName("dev_name")
     val devName: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
     val mtu: Int? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
     @SerialName("relay_network_whitelist")
     val relayNetworkWhitelist: String? = null,
     @SerialName("latency_first")

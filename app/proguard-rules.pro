@@ -38,9 +38,19 @@
 -keep class com.squareup.wire.** { *; }
 
 # --- Kotlinx Serialization & Ktoml ---
--keepclasseswithmembers class * { @kotlinx.serialization.Serializable <fields>; }
+# 保留所有 @Serializable 注解的类及其成员（类级别注解，非字段级别）
+-keep @kotlinx.serialization.Serializable class * { *; }
 -keep class **$$serializer { *; }
 -keep class * implements kotlinx.serialization.KSerializer { *; }
+
+# 显式保留应用的 TOML 序列化模型类，防止 R8 在 ktoml 反射/序列化路径中剥离
+-keep class com.easytier.app.TomlConfig { *; }
+-keep class com.easytier.app.Flags { *; }
+-keep class com.easytier.app.NetworkIdentity { *; }
+-keep class com.easytier.app.Peer { *; }
+-keep class com.easytier.app.ProxyNetwork { *; }
+-keep class com.easytier.app.VpnPortalConfig { *; }
+-keep class com.easytier.app.PortForward { *; }
 
 
 # ===================================================================
