@@ -91,8 +91,8 @@ object NetworkInfoParser {
     // --- 私有解析函数 ---
 
     private fun parseMyNodeInfo(myNodeJson: JSONObject): MyNodeInfo {
-        val myStunInfoJson = myNodeJson.getJSONObject("stun_info")
-        val ipsJson = myNodeJson.getJSONObject("ips")
+        val myStunInfoJson = myNodeJson.optJSONObject("stun_info") ?: JSONObject()
+        val ipsJson = myNodeJson.optJSONObject("ips") ?: JSONObject()
         val virtualIpv4Json = myNodeJson.optJSONObject("virtual_ipv4")
         val virtualIp = if (virtualIpv4Json != null) {
             "${
@@ -103,66 +103,83 @@ object NetworkInfoParser {
         } else {
             "正在获取中..."
         }
-        val listenersList = (0 until myNodeJson.getJSONArray("listeners").length()).map {
-            myNodeJson.getJSONArray("listeners").getJSONObject(it).getString("url")
-        }
-        val interfaceIpsList = (0 until ipsJson.getJSONArray("interface_ipv4s").length()).map {
-            parseIntegerToIp(
-                ipsJson.getJSONArray("interface_ipv4s").getJSONObject(it).getInt("addr")
-            )
-        }
-        val publicIpsArray = myStunInfoJson.getJSONArray("public_ip")
+        val listenersArray = myNodeJson.optJSONArray("listeners")
+        val listenersList = if (listenersArray != null) {
+            (0 until listenersArray.length()).map {
+                listenersArray.getJSONObject(it).getString("url")
+            }
+        } else emptyList()
+        val interfaceIpv4sArray = ipsJson.optJSONArray("interface_ipv4s")
+        val interfaceIpsList = if (interfaceIpv4sArray != null) {
+            (0 until interfaceIpv4sArray.length()).map {
+                parseIntegerToIp(interfaceIpv4sArray.getJSONObject(it).getInt("addr"))
+            }
+        } else emptyList()
+        val publicIpsArray = myStunInfoJson.optJSONArray("public_ip")
         val publicIpsStr =
-            if (publicIpsArray.length() > 0) (0 until publicIpsArray.length()).joinToString(", ") {
+            if (publicIpsArray != null && publicIpsArray.length() > 0) (0 until publicIpsArray.length()).joinToString(", ") {
                 publicIpsArray.getString(it)
             } else "N/A"
 
         return MyNodeInfo(
-            hostname = myNodeJson.getString("hostname"), version = myNodeJson.getString("version"),
+            hostname = myNodeJson.optString("hostname", "未知"),
+            version = myNodeJson.optString("version", "未知"),
             virtualIp = virtualIp, publicIp = publicIpsStr,
-            natType = parseNatType(myStunInfoJson.getInt("udp_nat_type")),
+            natType = if (myStunInfoJson.has("udp_nat_type")) parseNatType(myStunInfoJson.getInt("udp_nat_type")) else "未知",
             listeners = listenersList, interfaceIps = interfaceIpsList
         )
     }
 
     private fun parseRoutes(routesJson: org.json.JSONArray): Map<Long, RouteData> {
-        return (0 until routesJson.length()).associate {
-            val route = routesJson.getJSONObject(it)
-            val peerId = route.getLong("peer_id")
-            val ipv4AddrJson = route.optJSONObject("ipv4_addr")
-            val virtualIp = if (ipv4AddrJson != null) parseIntegerToIp(
-                ipv4AddrJson.getJSONObject("address").getInt("addr")
-            ) else "无虚拟IP"
-            peerId to RouteData(
-                peerId = peerId,
-                hostname = route.getString("hostname"),
-                virtualIp = virtualIp,
-                nextHopPeerId = route.getLong("next_hop_peer_id"),
-                pathLatency = route.getInt("path_latency"),
-                cost = route.getInt("cost"),
-                version = route.getString("version"),
-                natType = parseNatType(route.getJSONObject("stun_info").getInt("udp_nat_type")),
-                instId = route.getString("inst_id")
-            )
-        }
+        return (0 until routesJson.length()).mapNotNull { i ->
+            try {
+                val route = routesJson.getJSONObject(i)
+                val peerId = route.getLong("peer_id")
+                val ipv4AddrJson = route.optJSONObject("ipv4_addr")
+                val virtualIp = if (ipv4AddrJson != null) parseIntegerToIp(
+                    ipv4AddrJson.getJSONObject("address").getInt("addr")
+                ) else "无虚拟IP"
+                val stunInfoJson = route.optJSONObject("stun_info")
+                peerId to RouteData(
+                    peerId = peerId,
+                    hostname = route.optString("hostname", "未知"),
+                    virtualIp = virtualIp,
+                    nextHopPeerId = route.optLong("next_hop_peer_id", 0),
+                    pathLatency = route.optInt("path_latency", 0),
+                    cost = route.optInt("cost", 0),
+                    version = route.optString("version", "未知"),
+                    natType = if (stunInfoJson != null) parseNatType(stunInfoJson.optInt("udp_nat_type", 0)) else "未知",
+                    instId = route.optString("inst_id", "未知")
+                )
+            } catch (e: Exception) {
+                Log.e("NetworkInfoParser", "Failed to parse route at index $i", e)
+                null
+            }
+        }.toMap()
     }
 
     private fun parsePeers(peersJson: org.json.JSONArray): Map<Long, PeerConnectionData> {
         val peersMap = mutableMapOf<Long, PeerConnectionData>()
         for (i in 0 until peersJson.length()) {
-            val peer = peersJson.getJSONObject(i)
-            val conns = peer.getJSONArray("conns")
-            if (conns.length() > 0) {
-                val conn = conns.getJSONObject(0)
-                val peerId = conn.getLong("peer_id")
-                peersMap[peerId] = PeerConnectionData(
-                    peerId = peerId,
-                    physicalAddr = conn.getJSONObject("tunnel").getJSONObject("remote_addr")
-                        .getString("url"),
-                    latencyUs = conn.getJSONObject("stats").getLong("latency_us"),
-                    rxBytes = conn.getJSONObject("stats").getLong("rx_bytes"),
-                    txBytes = conn.getJSONObject("stats").getLong("tx_bytes")
-                )
+            try {
+                val peer = peersJson.getJSONObject(i)
+                val conns = peer.optJSONArray("conns")
+                if (conns != null && conns.length() > 0) {
+                    val conn = conns.getJSONObject(0)
+                    val peerId = conn.getLong("peer_id")
+                    val tunnel = conn.optJSONObject("tunnel")
+                    val remoteUrl = tunnel?.optJSONObject("remote_addr")?.optString("url", "未知") ?: "未知"
+                    val stats = conn.optJSONObject("stats")
+                    peersMap[peerId] = PeerConnectionData(
+                        peerId = peerId,
+                        physicalAddr = remoteUrl,
+                        latencyUs = stats?.optLong("latency_us", 0) ?: 0,
+                        rxBytes = stats?.optLong("rx_bytes", 0) ?: 0,
+                        txBytes = stats?.optLong("tx_bytes", 0) ?: 0
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("NetworkInfoParser", "Failed to parse peer at index $i", e)
             }
         }
         return peersMap
