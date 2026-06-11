@@ -596,7 +596,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // Booleans
         if (data.latencyFirst != defaultFlags.latencyFirst) flagLines.add("latency_first = ${data.latencyFirst}")
-        if (data.useSmoltcp != defaultFlags.useSmoltcp) flagLines.add("use_smoltcp = ${data.useSmoltcp}")
+        // WARNING: use_smoltcp=true may cause native crash on Android.
+        // SmolTCP is a userspace TCP/IP stack that conflicts with Android VpnService TUN.
+        // if (data.useSmoltcp != defaultFlags.useSmoltcp) flagLines.add("use_smoltcp = ${data.useSmoltcp}")
         // WARNING: disable_ipv6=true causes native SIGSEGV on Android.
         // The VPN TUN device setup requires IPv6 support in Android VpnService.
         // if (data.disableIpv6 != defaultFlags.disableIpv6) flagLines.add("disable_ipv6 = ${data.disableIpv6}")
@@ -605,8 +607,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (data.enableQuicProxy != defaultFlags.enableQuicProxy) flagLines.add("enable_quic_proxy = ${data.enableQuicProxy}")
         if (data.disableQuicInput != defaultFlags.disableQuicInput) flagLines.add("disable_quic_input = ${data.disableQuicInput}")
         if (data.disableP2p != defaultFlags.disableP2p) flagLines.add("disable_p2p = ${data.disableP2p}")
-        if (data.bindDevice != defaultFlags.bindDevice) flagLines.add("bind_device = ${data.bindDevice}")
-        if (data.noTun != defaultFlags.noTun) flagLines.add("no_tun = ${data.noTun}")
+        // WARNING: bind_device=true causes native crash on Android.
+        // SO_BINDTODEVICE requires CAP_NET_RAW capability, unavailable to normal apps.
+        // if (data.bindDevice != defaultFlags.bindDevice) flagLines.add("bind_device = ${data.bindDevice}")
+        // WARNING: no_tun=true is fundamentally incompatible with Android VpnService.
+        // Android VpnService always creates a TUN fd and passes it via setTunFd().
+        // Setting no_tun=true causes a fatal mismatch.
+        // if (data.noTun != defaultFlags.noTun) flagLines.add("no_tun = ${data.noTun}")
         if (data.enableExitNode != defaultFlags.enableExitNode) flagLines.add("enable_exit_node = ${data.enableExitNode}")
         if (data.relayAllPeerRpc != defaultFlags.relayAllPeerRpc) flagLines.add("relay_all_peer_rpc = ${data.relayAllPeerRpc}")
         if (data.multiThread != defaultFlags.multiThread) flagLines.add("multi_thread = ${data.multiThread}")
