@@ -597,7 +597,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // Booleans
         if (data.latencyFirst != defaultFlags.latencyFirst) flagLines.add("latency_first = ${data.latencyFirst}")
         if (data.useSmoltcp != defaultFlags.useSmoltcp) flagLines.add("use_smoltcp = ${data.useSmoltcp}")
-        if (data.disableIpv6 != defaultFlags.disableIpv6) flagLines.add("disable_ipv6 = ${data.disableIpv6}")
+        // WARNING: disable_ipv6=true causes native SIGSEGV on Android.
+        // The VPN TUN device setup requires IPv6 support in Android VpnService.
+        // if (data.disableIpv6 != defaultFlags.disableIpv6) flagLines.add("disable_ipv6 = ${data.disableIpv6}")
         if (data.enableKcpProxy != defaultFlags.enableKcpProxy) flagLines.add("enable_kcp_proxy = ${data.enableKcpProxy}")
         if (data.disableKcpInput != defaultFlags.disableKcpInput) flagLines.add("disable_kcp_input = ${data.disableKcpInput}")
         if (data.enableQuicProxy != defaultFlags.enableQuicProxy) flagLines.add("enable_quic_proxy = ${data.enableQuicProxy}")
@@ -609,7 +611,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (data.relayAllPeerRpc != defaultFlags.relayAllPeerRpc) flagLines.add("relay_all_peer_rpc = ${data.relayAllPeerRpc}")
         if (data.multiThread != defaultFlags.multiThread) flagLines.add("multi_thread = ${data.multiThread}")
         if (data.proxyForwardBySystem != defaultFlags.proxyForwardBySystem) flagLines.add("proxy_forward_by_system = ${data.proxyForwardBySystem}")
-        if (data.disableEncryption != defaultFlags.disableEncryption) flagLines.add("disable_encryption = ${data.disableEncryption}")
+        // WARNING: disable_encryption=true causes native SIGSEGV on Android.
+        // The Android VPN implementation requires WireGuard encryption to be enabled.
+        // if (data.disableEncryption != defaultFlags.disableEncryption) flagLines.add("disable_encryption = ${data.disableEncryption}")
         if (data.disableUdpHolePunching != defaultFlags.disableUdpHolePunching) flagLines.add("disable_udp_hole_punching = ${data.disableUdpHolePunching}")
         if (data.disableSymHolePunching != defaultFlags.disableSymHolePunching) flagLines.add("disable_sym_hole_punching = ${data.disableSymHolePunching}")
         if (data.acceptDns != defaultFlags.acceptDns) flagLines.add("accept_dns = ${data.acceptDns}")
