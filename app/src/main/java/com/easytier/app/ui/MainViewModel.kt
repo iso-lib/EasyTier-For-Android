@@ -301,7 +301,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         try {
-            val configToml = generateTomlConfig(_activeConfig.value)
+            val configToml = generateTomlConfig1(_activeConfig.value)
             Log.d(TAG, "Generated Config:\n$configToml")
 
             val timeStamp = java.text.SimpleDateFormat(
