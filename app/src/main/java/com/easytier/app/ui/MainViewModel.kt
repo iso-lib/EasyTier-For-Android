@@ -378,7 +378,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     if (result != null) {
                         Log.d(TAG, "Detailed info parsed: ${result.finalPeerList.size} peers, hostname=${result.myNode.hostname}")
                     } else {
-                        Log.w(TAG, "NetworkInfoParser.parse returned null for instance: ${_activeConfig.value.instanceName}")
+                        Log.w(TAG, "NetworkInfoParser.parse returned null. JSON preview: ${jsonString.take(500)}")
                     }
                     result
                 } else {

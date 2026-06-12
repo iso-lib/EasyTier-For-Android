@@ -36,10 +36,14 @@ object NetworkInfoParser {
             if (instance == null) {
                 val availableKeys = mapObj.keys().asSequence().toList()
                 Log.e("NetworkInfoParser", "Instance '$instanceName' not found in map. Available keys: $availableKeys")
-                // Try to find a matching instance (first one if only one exists)
-                if (availableKeys.size == 1) {
-                    Log.w("NetworkInfoParser", "Falling back to single instance key: ${availableKeys[0]}")
-                    return parseImpl(mapObj.getJSONObject(availableKeys[0]))
+                // Fall back to first available key (most common case: single-instance mismatch)
+                if (availableKeys.isNotEmpty()) {
+                    val fallbackKey = availableKeys.first()
+                    Log.w("NetworkInfoParser", "Falling back to first available key: '$fallbackKey'")
+                    val fallbackInstance = mapObj.optJSONObject(fallbackKey)
+                    if (fallbackInstance != null) {
+                        return parseImpl(fallbackInstance)
+                    }
                 }
                 return null
             }
