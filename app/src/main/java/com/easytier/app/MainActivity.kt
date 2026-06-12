@@ -103,6 +103,18 @@ class MainActivity : AppCompatActivity() {
         createFileLauncher.launch(fileName)
     }
 
+    // 调试日志导出
+    private val debugLogLauncher =
+        registerForActivityResult(CreateDocument("text/plain")) { uri: Uri? ->
+            uri?.let { viewModel.exportDebugLogs(it) }
+        }
+
+    fun launchExportDebugLogs() {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName = "easytier_debug_$timeStamp.txt"
+        debugLogLauncher.launch(fileName)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -201,6 +213,7 @@ class MainActivity : AppCompatActivity() {
                             onExportLogsClicked = ::launchCreateLogFile,
                             onExportConfig = { uri -> viewModel.exportConfig(uri) },
                             onImportConfig = { uri -> viewModel.importConfig(uri) },
+                            onExportDebugLogs = ::launchExportDebugLogs,
                             currentLanguage = viewModel.currentLanguage.value,
                             onLanguageChange = { lang -> viewModel.setLanguage(lang) }
                         )

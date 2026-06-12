@@ -514,6 +514,87 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun exportDebugLogs(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val sb = StringBuilder()
+                sb.appendLine("=== EasyTier Debug Logs ===")
+                sb.appendLine("Time: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", java.util.Locale.US).format(java.util.Date())}")
+                sb.appendLine()
+                
+                // 1. Current config info
+                val cfg = _activeConfig.value
+                sb.appendLine("=== Active Config ===")
+                sb.appendLine("Instance Name: ${cfg.instanceName}")
+                sb.appendLine("Instance ID: ${cfg.id}")
+                sb.appendLine("Network Name: ${cfg.networkName}")
+                sb.appendLine("DHCP: ${cfg.dhcp}")
+                sb.appendLine("Virtual IPv4: ${cfg.virtualIpv4}/${cfg.networkLength}")
+                sb.appendLine("Peers: ${cfg.peers}")
+                sb.appendLine("Enabled Flags: ${listOf(
+                    "latencyFirst" to cfg.latencyFirst, "useSmoltcp" to cfg.useSmoltcp,
+                    "disableIpv6" to cfg.disableIpv6, "enableKcpProxy" to cfg.enableKcpProxy,
+                    "disableP2p" to cfg.disableP2p, "bindDevice" to cfg.bindDevice,
+                    "noTun" to cfg.noTun, "enableExitNode" to cfg.enableExitNode,
+                    "multiThread" to cfg.multiThread, "disableEncryption" to cfg.disableEncryption,
+                    "acceptDns" to cfg.acceptDns, "privateMode" to cfg.privateMode
+                ).filter { it.second }.joinToString(", ") { it.first }}")
+                sb.appendLine()
+                
+                // 2. Service status
+                val status = easyTierManager?.getStatus()
+                sb.appendLine("=== Service Status ===")
+                sb.appendLine("isRunning: ${status?.isRunning ?: "N/A"}")
+                sb.appendLine("currentIpv4: ${status?.currentIpv4 ?: "N/A"}")
+                sb.appendLine("proxyCidrs: ${status?.currentProxyCidrs?.joinToString(", ") ?: "N/A"}")
+                sb.appendLine()
+                
+                // 3. Raw network info JSON
+                sb.appendLine("=== Raw Network Info JSON ===")
+                val jsonString = EasyTierJNI.collectNetworkInfos(10)
+                if (jsonString != null) {
+                    sb.appendLine("Length: ${jsonString.length} chars")
+                    sb.appendLine(jsonString)
+                } else {
+                    sb.appendLine("collectNetworkInfos returned null")
+                }
+                sb.appendLine()
+                
+                // 4. System logcat (app process only)
+                sb.appendLine("=== System Logcat (filter: MainViewModel, NetworkInfoParser, EasyTierManager) ===")
+                try {
+                    val pid = android.os.Process.myPid()
+                    val process = Runtime.getRuntime().exec(arrayOf("logcat", "-d", "--pid=${pid}", "-v", "threadtime"))
+                    val reader = java.io.BufferedReader(java.io.InputStreamReader(process.inputStream))
+                    val logLines = reader.readLines()
+                        .filter { line ->
+                            line.contains("MainViewModel") || line.contains("NetworkInfoParser") || 
+                            line.contains("EasyTierManager") || line.contains("EasyTierVpnService") ||
+                            line.contains("AndroidRuntime")
+                        }
+                    sb.appendLine("Total lines: ${logLines.size}")
+                    logLines.forEach { sb.appendLine(it) }
+                    process.waitFor()
+                } catch (e: Exception) {
+                    sb.appendLine("Failed to read logcat: ${e.message}")
+                }
+                
+                // 5. Write to file
+                val content = sb.toString()
+                getApplication<Application>().contentResolver.openOutputStream(uri)
+                    ?.use { it.write(content.toByteArray()) }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(getApplication(), "调试日志已导出 (${content.length} bytes)", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to export debug logs", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(getApplication(), "导出失败: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
     // --- 工具函数 ---
 
     private fun generateTomlConfig1(data: ConfigData): String {

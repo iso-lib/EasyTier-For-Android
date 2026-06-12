@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
@@ -41,7 +42,8 @@ fun StatusTab(
     detailedInfo: DetailedNetworkInfo?,
     onRefreshDetailedInfo: () -> Unit,
     onPeerClick: (FinalPeerInfo) -> Unit,
-    onCopyJsonClick: () -> Unit
+    onCopyJsonClick: () -> Unit,
+    onExportDebugLogs: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
@@ -57,7 +59,8 @@ fun StatusTab(
             onRefresh = onRefreshDetailedInfo,
             onPeerClick = onPeerClick,
             onCopyJsonClick = onCopyJsonClick,
-            isRunning = isRunning
+            isRunning = isRunning,
+            onExportDebugLogs = onExportDebugLogs
         )
     }
 }
@@ -181,7 +184,8 @@ fun DetailedInfoCard(
     onRefresh: () -> Unit,
     onPeerClick: (FinalPeerInfo) -> Unit,
     onCopyJsonClick: () -> Unit,
-    isRunning: Boolean
+    isRunning: Boolean,
+    onExportDebugLogs: (() -> Unit)? = null
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -201,12 +205,30 @@ fun DetailedInfoCard(
             Divider(Modifier.padding(vertical = 8.dp))
 
             if (info == null) {
-                Text(
-                    stringResource(R.string.status_placeholder),
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp)
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        stringResource(R.string.status_placeholder),
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    if (onExportDebugLogs != null) {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = onExportDebugLogs,
+                            modifier = Modifier.fillMaxWidth(0.7f)
+                        ) {
+                            Icon(
+                                Icons.Default.BugReport,
+                                contentDescription = "导出调试日志",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("导出调试日志")
+                        }
+                    }
+                }
             } else {
                 InfoSection(title = stringResource(R.string.local_info)) {
                     StatusRow(stringResource(R.string.hostname), info.myNode.hostname)

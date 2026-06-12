@@ -54,6 +54,7 @@ fun MainScreen(
     onExportLogsClicked: () -> Unit,
     onExportConfig: (Uri) -> Unit,
     onImportConfig: (Uri) -> Unit,
+    onExportDebugLogs: (() -> Unit)? = null,
     currentLanguage: String,
     onLanguageChange: (String) -> Unit
 ) {
@@ -154,7 +155,8 @@ fun MainScreen(
                                 )
                             )
                         },
-                        onCopyJsonClick = onCopyJsonClick
+                        onCopyJsonClick = onCopyJsonClick,
+                        onExportDebugLogs = onExportDebugLogs
                     )
 
                     2 -> LogTab(
