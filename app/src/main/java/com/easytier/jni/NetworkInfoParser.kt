@@ -163,7 +163,7 @@ object NetworkInfoParser {
             hostname = myNodeJson.optString("hostname", "未知"),
             version = myNodeJson.optString("version", "未知"),
             virtualIp = virtualIp, publicIp = publicIpsStr,
-            natType = if (myStunInfoJson.has("udp_nat_type")) parseNatType(myStunInfoJson.getInt("udp_nat_type")) else "未知",
+            natType = parseNatTypeFromJson(myStunInfoJson.opt("udp_nat_type")),
             listeners = listenersList, interfaceIps = interfaceIpsList
         )
     }
@@ -186,7 +186,7 @@ object NetworkInfoParser {
                     pathLatency = route.optInt("path_latency", 0),
                     cost = route.optInt("cost", 0),
                     version = route.optString("version", "未知"),
-                    natType = if (stunInfoJson != null) parseNatType(stunInfoJson.optInt("udp_nat_type", 0)) else "未知",
+                    natType = if (stunInfoJson != null) parseNatTypeFromJson(stunInfoJson.opt("udp_nat_type")) else "未知",
                     instId = route.optString("inst_id", "未知")
                 )
             } catch (e: Exception) {
@@ -319,6 +319,21 @@ object NetworkInfoParser {
             6 -> "Symmetric (对称型)"; 7 -> "Symmetric UDP Firewall (对称UDP防火墙)"
             8 -> "Symmetric Easy Inc (对称型-端口递增)"; 9 -> "Symmetric Easy Dec (对称型-端口递减)"
             else -> "Other Type ($typeCode)"
+        }
+    }
+    
+    /**
+     * Parse nat_type from JSON value which may be integer (old API) or string (new API).
+     * New EasyTier versions return string names like "FullCone" instead of numeric codes.
+     */
+    private fun parseNatTypeFromJson(value: Any?): String {
+        return when (value) {
+            is Int -> parseNatType(value)
+            is String -> {
+                // Handle string enum values, capitalize first letter
+                value.replaceFirstChar { it.uppercase() }
+            }
+            else -> "未知"
         }
     }
 }
