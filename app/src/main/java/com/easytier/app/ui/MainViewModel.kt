@@ -373,8 +373,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val jsonString = EasyTierJNI.collectNetworkInfos(10)
                 if (jsonString != null) {
-                    NetworkInfoParser.parse(jsonString, _activeConfig.value.instanceName)
-                } else null
+                    Log.d(TAG, "collectNetworkInfos returned ${jsonString.length} chars, parsing for instance: ${_activeConfig.value.instanceName}")
+                    val result = NetworkInfoParser.parse(jsonString, _activeConfig.value.instanceName)
+                    if (result != null) {
+                        Log.d(TAG, "Detailed info parsed: ${result.finalPeerList.size} peers, hostname=${result.myNode.hostname}")
+                    } else {
+                        Log.w(TAG, "NetworkInfoParser.parse returned null for instance: ${_activeConfig.value.instanceName}")
+                    }
+                    result
+                } else {
+                    Log.d(TAG, "collectNetworkInfos returned null")
+                    null
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to parse detailed info snapshot", e)
                 if (showToast) viewModelScope.launch { _toastEvents.emit("解析信息失败: ${e.message}") }

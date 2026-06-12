@@ -20,14 +20,48 @@ object NetworkInfoParser {
      * @param instanceName 当前运行的实例名称。
      * @return 一个包含所有解析信息的 DetailedNetworkInfo 对象。
      */
-    fun parse(jsonString: String, instanceName: String): DetailedNetworkInfo {
-        val root = JSONObject(jsonString)
-        val instance = root.getJSONObject("map").getJSONObject(instanceName)
+    fun parse(jsonString: String, instanceName: String): DetailedNetworkInfo? {
+        try {
+            val root = JSONObject(jsonString)
+            val mapObj = root.optJSONObject("map")
+            
+            if (mapObj == null) {
+                Log.e("NetworkInfoParser", "JSON missing 'map' key. Keys: ${root.keys().asSequence().toList()}")
+                Log.d("NetworkInfoParser", "JSON preview (first 300 chars): ${jsonString.take(300)}")
+                return null
+            }
+            
+            val instance = mapObj.optJSONObject(instanceName)
+            
+            if (instance == null) {
+                val availableKeys = mapObj.keys().asSequence().toList()
+                Log.e("NetworkInfoParser", "Instance '$instanceName' not found in map. Available keys: $availableKeys")
+                // Try to find a matching instance (first one if only one exists)
+                if (availableKeys.size == 1) {
+                    Log.w("NetworkInfoParser", "Falling back to single instance key: ${availableKeys[0]}")
+                    return parseImpl(mapObj.getJSONObject(availableKeys[0]))
+                }
+                return null
+            }
+            
+            return parseImpl(instance)
+        } catch (e: Exception) {
+            Log.e("NetworkInfoParser", "Top-level parse failed", e)
+            return null
+        }
+    }
+    
+    private fun parseImpl(instance: JSONObject): DetailedNetworkInfo {
 
-        val myNode = parseMyNodeInfo(instance.getJSONObject("my_node_info"))
-        val routesMap = parseRoutes(instance.getJSONArray("routes"))
-        val peersMap = parsePeers(instance.getJSONArray("peers"))
-        val snapshotEvents = parseEventList(instance.getJSONArray("events"))
+        val myNodeJson = instance.optJSONObject("my_node_info") ?: JSONObject()
+        val routesJson = instance.optJSONArray("routes") ?: org.json.JSONArray()
+        val peersJson = instance.optJSONArray("peers") ?: org.json.JSONArray()
+        val eventsJson = instance.optJSONArray("events") ?: org.json.JSONArray()
+        
+        val myNode = parseMyNodeInfo(myNodeJson)
+        val routesMap = parseRoutes(routesJson)
+        val peersMap = parsePeers(peersJson)
+        val snapshotEvents = parseEventList(eventsJson)
 
         val finalPeerList = routesMap.values.map { route ->
             val peerConn = peersMap[route.peerId]
