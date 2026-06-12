@@ -292,148 +292,141 @@ fun ControlTab(
             )
             Spacer(Modifier.height(8.dp))
 
-            // 其他所有开关
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Column(Modifier.weight(1f)) {
-                    ConfigSwitchWithInlineHelp(
-                        stringResource(R.string.latency_first),
-                        activeConfig.latencyFirst,
-                        { onConfigChange(activeConfig.copy(latencyFirst = it)) },
-                        stringResource(R.string.help_latency_first),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Private Mode",
-                        activeConfig.privateMode,
-                        { onConfigChange(activeConfig.copy(privateMode = it)) },
-                        stringResource(R.string.help_private_mode),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Enable KCP",
-                        activeConfig.enableKcpProxy,
-                        { onConfigChange(activeConfig.copy(enableKcpProxy = it)) },
-                        stringResource(R.string.help_enable_kcp),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Disable P2P",
-                        activeConfig.disableP2p,
-                        { onConfigChange(activeConfig.copy(disableP2p = it)) },
-                        stringResource(R.string.help_disable_p2p),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        stringResource(R.string.exit_nodes),
-                        activeConfig.enableExitNode,
-                        { onConfigChange(activeConfig.copy(enableExitNode = it)) },
-                        stringResource(R.string.help_enable_exit_node),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Disable KCP Input",
-                        activeConfig.disableKcpInput,
-                        { onConfigChange(activeConfig.copy(disableKcpInput = it)) },
-                        stringResource(R.string.help_disable_kcp_input),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Enable QUIC",
-                        activeConfig.enableQuicProxy,
-                        { onConfigChange(activeConfig.copy(enableQuicProxy = it)) },
-                        stringResource(R.string.help_enable_quic),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Disable QUIC Input",
-                        activeConfig.disableQuicInput,
-                        { onConfigChange(activeConfig.copy(disableQuicInput = it)) },
-                        stringResource(R.string.help_disable_quic_input),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Multi-Thread",
-                        activeConfig.multiThread,
-                        { onConfigChange(activeConfig.copy(multiThread = it)) },
-                        stringResource(R.string.help_multi_thread),
-                        !isRunning
-                    )
-                }
-                Column(Modifier.weight(1f)) {
-                    ConfigSwitchWithInlineHelp(
-                        "Disable Encryption",
-                        activeConfig.disableEncryption,
-                        { onConfigChange(activeConfig.copy(disableEncryption = it)) },
-                        stringResource(R.string.help_disable_encryption),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Disable IPv6",
-                        activeConfig.disableIpv6,
-                        { onConfigChange(activeConfig.copy(disableIpv6 = it)) },
-                        stringResource(R.string.help_disable_ipv6),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Magic DNS",
-                        activeConfig.acceptDns,
-                        { onConfigChange(activeConfig.copy(acceptDns = it)) },
-                        stringResource(R.string.help_accept_dns),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Bind Device",
-                        activeConfig.bindDevice,
-                        { onConfigChange(activeConfig.copy(bindDevice = it)) },
-                        stringResource(R.string.help_bind_device),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Disable UDP Hole Punching",
-                        activeConfig.disableUdpHolePunching,
-                        { onConfigChange(activeConfig.copy(disableUdpHolePunching = it)) },
-                        stringResource(R.string.help_disable_udp_hole_punching),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Relay All RPC",
-                        activeConfig.relayAllPeerRpc,
-                        { onConfigChange(activeConfig.copy(relayAllPeerRpc = it)) },
-                        stringResource(R.string.help_relay_all_rpc),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Proxy Forward By System",
-                        activeConfig.proxyForwardBySystem,
-                        { onConfigChange(activeConfig.copy(proxyForwardBySystem = it)) },
-                        stringResource(R.string.help_proxy_forward_by_system),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Disable Sym Hole Punching",
-                        activeConfig.disableSymHolePunching,
-                        { onConfigChange(activeConfig.copy(disableSymHolePunching = it)) },
-                        stringResource(R.string.help_disable_sym_hole_punching),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "Use SmolTCP",
-                        activeConfig.useSmoltcp,
-                        { onConfigChange(activeConfig.copy(useSmoltcp = it)) },
-                        stringResource(R.string.help_use_smoltcp),
-                        !isRunning
-                    )
-                    ConfigSwitchWithInlineHelp(
-                        "No TUN",
-                        activeConfig.noTun,
-                        { onConfigChange(activeConfig.copy(noTun = it)) },
-                        stringResource(R.string.help_no_tun),
-                        !isRunning
-                    )
-                }
+            // 其他所有开关（单列全宽布局，避免文字换行）
+            Column {
+                ConfigSwitchWithInlineHelp(
+                    stringResource(R.string.latency_first),
+                    activeConfig.latencyFirst,
+                    { onConfigChange(activeConfig.copy(latencyFirst = it)) },
+                    stringResource(R.string.help_latency_first),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Private Mode",
+                    activeConfig.privateMode,
+                    { onConfigChange(activeConfig.copy(privateMode = it)) },
+                    stringResource(R.string.help_private_mode),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Disable Encryption",
+                    activeConfig.disableEncryption,
+                    { onConfigChange(activeConfig.copy(disableEncryption = it)) },
+                    stringResource(R.string.help_disable_encryption),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Disable IPv6",
+                    activeConfig.disableIpv6,
+                    { onConfigChange(activeConfig.copy(disableIpv6 = it)) },
+                    stringResource(R.string.help_disable_ipv6),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Enable KCP",
+                    activeConfig.enableKcpProxy,
+                    { onConfigChange(activeConfig.copy(enableKcpProxy = it)) },
+                    stringResource(R.string.help_enable_kcp),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Disable KCP Input",
+                    activeConfig.disableKcpInput,
+                    { onConfigChange(activeConfig.copy(disableKcpInput = it)) },
+                    stringResource(R.string.help_disable_kcp_input),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Enable QUIC",
+                    activeConfig.enableQuicProxy,
+                    { onConfigChange(activeConfig.copy(enableQuicProxy = it)) },
+                    stringResource(R.string.help_enable_quic),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Disable QUIC Input",
+                    activeConfig.disableQuicInput,
+                    { onConfigChange(activeConfig.copy(disableQuicInput = it)) },
+                    stringResource(R.string.help_disable_quic_input),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Disable P2P",
+                    activeConfig.disableP2p,
+                    { onConfigChange(activeConfig.copy(disableP2p = it)) },
+                    stringResource(R.string.help_disable_p2p),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Bind Device",
+                    activeConfig.bindDevice,
+                    { onConfigChange(activeConfig.copy(bindDevice = it)) },
+                    stringResource(R.string.help_bind_device),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "No TUN",
+                    activeConfig.noTun,
+                    { onConfigChange(activeConfig.copy(noTun = it)) },
+                    stringResource(R.string.help_no_tun),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    stringResource(R.string.exit_nodes),
+                    activeConfig.enableExitNode,
+                    { onConfigChange(activeConfig.copy(enableExitNode = it)) },
+                    stringResource(R.string.help_enable_exit_node),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Relay All RPC",
+                    activeConfig.relayAllPeerRpc,
+                    { onConfigChange(activeConfig.copy(relayAllPeerRpc = it)) },
+                    stringResource(R.string.help_relay_all_rpc),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Multi-Thread",
+                    activeConfig.multiThread,
+                    { onConfigChange(activeConfig.copy(multiThread = it)) },
+                    stringResource(R.string.help_multi_thread),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Proxy Forward By System",
+                    activeConfig.proxyForwardBySystem,
+                    { onConfigChange(activeConfig.copy(proxyForwardBySystem = it)) },
+                    stringResource(R.string.help_proxy_forward_by_system),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Disable UDP Hole Punching",
+                    activeConfig.disableUdpHolePunching,
+                    { onConfigChange(activeConfig.copy(disableUdpHolePunching = it)) },
+                    stringResource(R.string.help_disable_udp_hole_punching),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Disable Sym Hole Punching",
+                    activeConfig.disableSymHolePunching,
+                    { onConfigChange(activeConfig.copy(disableSymHolePunching = it)) },
+                    stringResource(R.string.help_disable_sym_hole_punching),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Magic DNS",
+                    activeConfig.acceptDns,
+                    { onConfigChange(activeConfig.copy(acceptDns = it)) },
+                    stringResource(R.string.help_accept_dns),
+                    !isRunning
+                )
+                ConfigSwitchWithInlineHelp(
+                    "Use SmolTCP",
+                    activeConfig.useSmoltcp,
+                    { onConfigChange(activeConfig.copy(useSmoltcp = it)) },
+                    stringResource(R.string.help_use_smoltcp),
+                    !isRunning
+                )
             }
         }
         // --- 高级路由配置 ---
